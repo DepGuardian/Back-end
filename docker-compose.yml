@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+    ports:
+      - "3000:3000"  # Cambiado a 3000:3000 para mantener consistencia
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - user-service
+    networks:
+      - microservices-network
+
+  user-service:
+    build:
+      context: .
+      dockerfile: apps/user-service/Dockerfile
+    expose:
+      - 3001
+    environment:
+      - NODE_ENV=development
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge
