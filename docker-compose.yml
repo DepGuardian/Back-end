@@ -4,27 +4,29 @@ services:
   api-gateway:
     build:
       context: .
-      dockerfile: apps/api-gateway/Dockerfile
+      dockerfile: apps/api-gateway/Dockerfile.dev
     ports:
-      - "3000:3000"  # Cambiado a 3000:3000 para mantener consistencia
+      - "3000:3000"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    command: npm run start:dev api-gateway
     environment:
       - NODE_ENV=development
     depends_on:
       - user-service
-    networks:
-      - microservices-network
 
   user-service:
     build:
       context: .
-      dockerfile: apps/user-service/Dockerfile
-    expose:
-      - 3001
+      dockerfile: apps/user-service/Dockerfile.dev
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    command: npm run start:dev user-service
     environment:
       - NODE_ENV=development
-    networks:
-      - microservices-network
 
 networks:
-  microservices-network:
-    driver: bridge
+  default:
+    name: microservices-network
