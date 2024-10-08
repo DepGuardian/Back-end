@@ -5,6 +5,6 @@ import { MessagePattern } from '@nestjs/microservices';
 export class UsersController {
   @MessagePattern({ cmd: 'get_users' })
   getUsers() {
-    return 'This is a response from the user service!';
+    return 'This is a response from the user service WATCHHH!';
   }
 }

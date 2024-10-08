@@ -9,6 +9,8 @@
     "build:api-gateway": "nest build api-gateway",
     "build:user-service": "nest build user-service",
     "start:dev": "nest start --watch",
+    "start:dev:api-gateway": "nest start --watch --config apps/api-gateway/nest-cli.json",
+    "start:dev:user-service": "nest start --watch --config apps/user-service/nest-cli.json",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/api-gateway/main",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
