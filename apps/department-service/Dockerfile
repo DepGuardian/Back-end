@@ -3,11 +3,11 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npm run build:user-service
+RUN npm run build:department-service
 
 FROM node:20-alpine
 WORKDIR /app
-COPY --from=builder /app/dist/apps/user-service ./dist
+COPY --from=builder /app/dist/apps/department-service ./dist
 COPY --from=builder /app/node_modules ./node_modules
 EXPOSE 3001
 CMD ["node", "dist/main.js"]

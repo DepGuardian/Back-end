@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { UsersController } from './controllers/users.controller';
+import { DepartmentController } from './controllers/department.controller';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './filters/all-exceptions.filter';
 
@@ -8,16 +8,16 @@ import { AllExceptionsFilter } from './filters/all-exceptions.filter';
   imports: [
     ClientsModule.register([
       {
-        name: 'USER_SERVICE',
+        name: 'DEPARTMENT_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: 'user-service',
+          host: 'department-service',
           port: 3001,
         },
       },
     ]),
   ],
-  controllers: [UsersController],
+  controllers: [DepartmentController],
   providers: [
     {
       provide: APP_FILTER,
