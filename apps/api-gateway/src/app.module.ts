@@ -1,23 +1,32 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { DepartmentController } from './controllers/department.controller';
+import { UsersController } from './controllers/user.controller';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './filters/all-exceptions.filter';
+import { MongooseModule } from '@nestjs/mongoose';
+import { CondominiumModule } from './condominium/condominium.module';
+import { AuthController } from './auth/auth.controller';
+import { AuthModule } from './auth/auth.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
     ClientsModule.register([
       {
-        name: 'DEPARTMENT_SERVICE',
+        name: 'USER_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: 'department-service',
+          host: 'user-service',
           port: 3001,
         },
       },
     ]),
+    MongooseModule.forRoot('mongodb://mongodb:27017/general'),
+    DatabaseModule,
+    CondominiumModule,
+    AuthModule,
   ],
-  controllers: [DepartmentController],
+  controllers: [UsersController, AuthController],
   providers: [
     {
       provide: APP_FILTER,

@@ -13,8 +13,11 @@ services:
     command: npm run start:dev api-gateway
     environment:
       - NODE_ENV=development
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
     depends_on:
       - department-service
+      - mongodb
 
   department-service:
     build:
@@ -26,6 +29,8 @@ services:
     command: npm run start:dev department-service
     environment:
       - NODE_ENV=development
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
     depends_on:
       - mongodb
 
@@ -35,6 +40,8 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+      - ./docker/mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    command: mongod --bind_ip_all
 
 volumes:
   mongodb_data:
