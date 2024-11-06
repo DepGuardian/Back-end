@@ -1,8 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { UsersController } from './controllers/users.controller';
+import { UsersController } from './controllers/user.controller';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './filters/all-exceptions.filter';
+import { MongooseModule } from '@nestjs/mongoose';
+import { CondominiumModule } from './condominium/condominium.module';
+import { AuthController } from './auth/auth.controller';
+import { AuthModule } from './auth/auth.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -16,8 +21,12 @@ import { AllExceptionsFilter } from './filters/all-exceptions.filter';
         },
       },
     ]),
+    MongooseModule.forRoot('mongodb://mongodb:27017/general'),
+    DatabaseModule,
+    CondominiumModule,
+    AuthModule,
   ],
-  controllers: [UsersController],
+  controllers: [UsersController, AuthController],
   providers: [
     {
       provide: APP_FILTER,

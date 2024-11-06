@@ -13,19 +13,25 @@ services:
     command: npm run start:dev api-gateway
     environment:
       - NODE_ENV=development
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
+      - JWT_SECRET=secret
     depends_on:
-      - user-service
+      - department-service
+      - mongodb
 
-  user-service:
+  department-service:
     build:
       context: .
-      dockerfile: apps/user-service/Dockerfile.dev
+      dockerfile: apps/department-service/Dockerfile.dev
     volumes:
       - ./:/app
       - /app/node_modules
-    command: npm run start:dev user-service
+    command: npm run start:dev department-service
     environment:
       - NODE_ENV=development
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
     depends_on:
       - mongodb
 
@@ -35,6 +41,8 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+      - ./docker/mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    command: mongod --bind_ip_all
 
 volumes:
   mongodb_data:
