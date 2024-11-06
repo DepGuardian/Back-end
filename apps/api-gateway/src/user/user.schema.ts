@@ -17,9 +17,6 @@ export class User extends Document {
 
   @Prop({ required: true })
   tenantId: string;
-  
-
-
   // Puedes agregar más propiedades según sea necesario
 }
 

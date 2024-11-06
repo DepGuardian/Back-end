@@ -12,11 +12,9 @@ import { CondominiumModule } from '../condominium/condominium.module';
     UserModule,
     CondominiumModule,
     PassportModule,
-    JwtModule.registerAsync({
-      useFactory: async () => ({
+    JwtModule.register({
         secret: process.env.JWT_SECRET,
-        signOptions: { expiresIn: '1h' },
-      }),
+        signOptions: { expiresIn: '60m' },
     }),
   ],
   providers: [AuthService, JwtStrategy],

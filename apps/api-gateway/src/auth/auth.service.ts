@@ -42,14 +42,19 @@ export class AuthService {
 
     if (user.isSuperAdmin) {
       const superAdmin = await this.userService.findSuperAdminByEmail(user.email);
+      console.log('Super admin:', superAdmin);
       if (!superAdmin) {
         return null;
       }
 
       if (!await this.userService.comparePassword(user.password, superAdmin.password)) {
+        console.log('Invalid password');
         return null;
       }
 
+      console.log('Signing token');
+      // Console log env JWT_SECRET
+      console.log('JWT_SECRET:', process.env.JWT_SECRET);
       return {
         access_token: this.jwtService.sign({
           sub: superAdmin._id,
@@ -57,6 +62,11 @@ export class AuthService {
           role: 'superadmin',
           condominiumId: superAdmin.condominiumId,
         }),
+        user: {
+          email: superAdmin.email,
+          role: 'superadmin',
+          condominiumId: superAdmin.condominiumId,
+        }
       };
     } else {
       // TODO Implementar API de residentes por tenantID

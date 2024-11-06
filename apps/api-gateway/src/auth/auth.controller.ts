@@ -3,14 +3,21 @@ import { Controller, Post, Body, Get, UseGuards, Request } from '@nestjs/common'
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { SuperAdminCreateDto } from './dtos/superAdmin.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+
+  @UseGuards(AuthGuard('local'))
   @Post('login')
   async login(@Body() loginData: { email: string; password: string; isSuperAdmin: boolean }) {
-    return this.authService.login(loginData);
+    console.log(loginData);
+    return {
+      access_token: this.authService.login(loginData),
+      status: 'success'
+    }
   }
 
   @Post('register')
