@@ -1,37 +1,26 @@
 import { Module } from '@nestjs/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { UsersController } from './controllers/user.controller';
-import { APP_FILTER } from '@nestjs/core';
-import { AllExceptionsFilter } from './filters/all-exceptions.filter';
-import { MongooseModule } from '@nestjs/mongoose';
-import { CondominiumModule } from './condominium/condominium.module';
-import { AuthController } from './auth/auth.controller';
-import { AuthModule } from './auth/auth.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
+import { AuthClientModule } from './auth-client/auth-client.module';
+import { AuthClientController } from './auth-client/auth-client.controller';
+import { HealthController } from './health/health.controller';
+import { HealthModule } from './health/health.module';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
-    ClientsModule.register([
-      {
-        name: 'USER_SERVICE',
-        transport: Transport.TCP,
-        options: {
-          host: 'user-service',
-          port: 3001,
-        },
-      },
-    ]),
-    MongooseModule.forRoot('mongodb://mongodb:27017/general'),
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      isGlobal: true,  // Hace que las variables de entorno estén disponibles en toda la aplicación
+      cache: true,
+      expandVariables: true, // Permite el uso de variables dentro del .env
+    }),
+    AuthClientModule,
+    HealthModule,
     DatabaseModule,
-    CondominiumModule,
-    AuthModule,
   ],
-  controllers: [UsersController, AuthController],
-  providers: [
-    {
-      provide: APP_FILTER,
-      useClass: AllExceptionsFilter,
-    },
-  ],
+  controllers: [AppController, AuthClientController],
+  providers: [AppService],
 })
 export class AppModule {}

@@ -1,15 +1,21 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { DatabaseConnectionService } from './database-connection.service';
+import { Module, Global } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigService } from '@nestjs/config';
+import { DatabaseConnectionService } from './database.service';
 
+@Global()
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
+    MongooseModule.forRootAsync({
+      connectionName: 'general',
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGODB_URI'),
+        dbName: 'general',
+      }),
+      inject: [ConfigService],
     }),
   ],
   providers: [DatabaseConnectionService],
-  exports: [DatabaseConnectionService],
+  exports: [MongooseModule, DatabaseConnectionService],
 })
 export class DatabaseModule {}

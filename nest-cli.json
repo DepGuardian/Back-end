@@ -5,8 +5,8 @@
   "root": "apps/api-gateway",
   "sourceRoot": "apps/api-gateway/src",
   "compilerOptions": {
-    "webpack": true,
-    "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
+    "webpack": false,
+    "tsConfigPath": "apps/api-gateway/tsconfig.json"
   },
   "projects": {
     "api-gateway": {
@@ -15,16 +15,34 @@
       "entryFile": "main",
       "sourceRoot": "apps/api-gateway/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
+        "tsConfigPath": "apps/api-gateway/tsconfig.json"
       }
     },
-    "department-service": {
+    "auth": {
       "type": "application",
-      "root": "apps/department-service",
+      "root": "apps/auth",
       "entryFile": "main",
-      "sourceRoot": "apps/department-service/src",
+      "sourceRoot": "apps/auth/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/department-service/tsconfig.app.json"
+        "tsConfigPath": "apps/auth/tsconfig.json"
+      }
+    },
+    "common": {
+      "type": "library",
+      "root": "libs/common",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common/tsconfig.json"
+      }
+    },
+    "database": {
+      "type": "library",
+      "root": "libs/database",
+      "entryFile": "index",
+      "sourceRoot": "libs/database/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/database/tsconfig.json"
       }
     }
   }
