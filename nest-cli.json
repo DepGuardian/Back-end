@@ -33,6 +33,15 @@
         "tsConfigPath": "apps/auth/tsconfig.json"
       }
     },
+    "resident": {
+      "type": "application",
+      "root": "apps/resident",
+      "entryFile": "main",
+      "sourceRoot": "apps/resident/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/resident/tsconfig.json"
+      }
+    },
     "apartments": {
       "type": "application",
       "root": "apps/apartments",

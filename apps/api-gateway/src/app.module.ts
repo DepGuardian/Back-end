@@ -4,9 +4,10 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { AuthClientModule } from './auth-client/auth-client.module';
 import { AuthClientController } from './auth-client/auth-client.controller';
-import { HealthController } from './health/health.controller';
+import { ResidentClientModule } from './resident-client/resident-client.module';
 import { HealthModule } from './health/health.module';
 import { DatabaseModule } from './database/database.module';
+import { ResidentClientController } from './resident-client/resident-client.controller';
 import { ApartmentClientModule } from './apartment-client/apartment-client.module';
 import { ApartmentClientController } from './apartment-client/apartment-client.controller';
 
@@ -19,11 +20,12 @@ import { ApartmentClientController } from './apartment-client/apartment-client.c
       expandVariables: true, // Permite el uso de variables dentro del .env
     }),
     AuthClientModule,
+    ResidentClientModule,
     HealthModule,
     ApartmentClientModule,
     DatabaseModule,
   ],
-  controllers: [AppController, AuthClientController, ApartmentClientController],
+  controllers: [AppController, AuthClientController, ApartmentClientController, ResidentClientController],
   providers: [AppService],
 })
 export class AppModule {}

@@ -89,16 +89,6 @@ export class AuthService implements OnModuleInit {
     this.logger.debug(`Attempting to register resident with email: ${registerData.email} for tenant: ${registerData.tenantId}`);
 
     try {
-      // Primero verificamos si el tenant existe en la BD general
-      // const tenant = await this.userModel.findOne({ 
-      //   _id: registerData.tenantId,
-      //   isSuperAdmin: true 
-      // });
-
-      // if (!tenant) {
-      //   throw new NotFoundException('Tenant not found');
-      // }
-
       // Obtenemos la conexión específica para el tenant
       const tenantConnection = await this.databaseConnectionService.getConnection(registerData.tenantId);
       
