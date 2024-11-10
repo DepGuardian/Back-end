@@ -6,7 +6,7 @@ import { Resident, ResidentSchema } from './schemas/resident.schema';
 import { DatabaseConnectionService } from '@database/database.service';
 
 @Injectable()
-export class  implements OnModuleInit {
+export class ResidentService implements OnModuleInit {
   private readonly logger = new Logger(ResidentService.name);
 
   constructor(
@@ -34,7 +34,7 @@ export class  implements OnModuleInit {
   async getAllResidents(tenantId: string) {
     const tenantConnection = await this.databaseConnectionService.getConnection(tenantId);
     const ResidentModel = tenantConnection.model<Resident>('Resident', ResidentSchema);
-    return ResidentModel.find().exec();
+    return ResidentModel.find().select('-password').exec();
   }
 
 }

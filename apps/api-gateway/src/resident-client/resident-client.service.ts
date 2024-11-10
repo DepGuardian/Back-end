@@ -8,10 +8,10 @@ export class ResidentClientService {
         @Inject('RESIDENT_SERVICE') private readonly residentClient: ClientProxy,
     ) {}
 
-    async getResidents() {
+    async getResidents(tenantId: string) {
         try {
             const pattern = { cmd: 'getall' };
-            return firstValueFrom(this.residentClient.send(pattern, {}));
+            return firstValueFrom(this.residentClient.send(pattern, tenantId));
         } catch (error) {
             throw error;
         }

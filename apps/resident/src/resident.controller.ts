@@ -6,9 +6,9 @@ import { Controller } from '@nestjs/common';
 export class ResidentController {
   constructor(private readonly residentServide: ResidentService) {}
   @MessagePattern({ cmd: 'getall' })
-  async getAll(tenantID: string) {
+  async getAll(tenantId: string) {
     try {
-      return this.residentServide.getAllResidents(tenantID);
+      return this.residentServide.getAllResidents(tenantId);
     } catch (error) {
       console.error('Error fetching residents:', error);
       throw error;
