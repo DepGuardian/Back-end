@@ -1,0 +1,14 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+      "outDir": "../../dist/apps/resident",
+      "baseUrl": "./",
+      "paths": {
+        "@auth/*": ["src/*"],
+        "@lib/common/*": ["../../libs/common/src/*"],
+        "@database/*": ["../../apps/api-gateway/src/database/*"]  // Nueva ruta
+      }
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+  }
