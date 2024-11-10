@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
 import { AuthClientModule } from './auth-client/auth-client.module';
 import { AuthClientController } from './auth-client/auth-client.controller';
 import { ResidentClientModule } from './resident-client/resident-client.module';
 import { HealthModule } from './health/health.module';
-import { DatabaseModule } from './database/database.module';
+import { DatabaseModule } from '../../../libs/database/database.module';
 import { ResidentClientController } from './resident-client/resident-client.controller';
 import { ApartmentClientModule } from './apartment-client/apartment-client.module';
 import { ApartmentClientController } from './apartment-client/apartment-client.controller';
@@ -15,7 +15,7 @@ import { ApartmentClientController } from './apartment-client/apartment-client.c
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
-      isGlobal: true,  // Hace que las variables de entorno estén disponibles en toda la aplicación
+      isGlobal: true, // Hace que las variables de entorno estén disponibles en toda la aplicación
       cache: true,
       expandVariables: true, // Permite el uso de variables dentro del .env
     }),
@@ -25,7 +25,12 @@ import { ApartmentClientController } from './apartment-client/apartment-client.c
     ApartmentClientModule,
     DatabaseModule,
   ],
-  controllers: [AppController, AuthClientController, ApartmentClientController, ResidentClientController],
+  controllers: [
+    AppController,
+    AuthClientController,
+    ApartmentClientController,
+    ResidentClientController,
+  ],
   providers: [AppService],
 })
 export class AppModule {}

@@ -5,7 +5,7 @@ import { Connection } from 'mongoose';
 @Controller('health')
 export class HealthController {
   constructor(
-    @InjectConnection('general') private readonly connection: Connection
+    @InjectConnection('general') private readonly connection: Connection,
   ) {}
 
   @Get('/db')
@@ -29,8 +29,8 @@ export class HealthController {
             status: state === 1 ? 'connected' : 'disconnected',
             name: this.connection.name,
             host: this.connection.host,
-          }
-        }
+          },
+        },
       },
     };
   }

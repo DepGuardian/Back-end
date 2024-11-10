@@ -7,7 +7,7 @@ export type ResidentDocument = Resident & Document;
 @Schema({
   collection: 'residents',
   timestamps: true,
-  versionKey: false
+  versionKey: false,
 })
 export class Resident {
   @Prop({ required: true })

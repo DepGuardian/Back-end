@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Transport, MicroserviceOptions } from '@nestjs/microservices';
-import { AuthModule } from './auth.module';
 import { Logger } from '@nestjs/common';
+import { AuthModule } from './auth.module';
 
 async function bootstrap() {
   const logger = new Logger('Auth Microservice');

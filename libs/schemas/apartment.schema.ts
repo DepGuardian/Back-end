@@ -1,16 +1,16 @@
 // apps/auth/src/schemas/resident.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types, Document, ObjectId } from 'mongoose';
+import { Types, Document } from 'mongoose';
 
 export type ApartmentDocument = Apartment & Document;
 
 @Schema({
   collection: 'apartments',
   timestamps: true,
-  versionKey: false
+  versionKey: false,
 })
 export class Apartment {
-  @Prop({ type: Types.ObjectId, required: false, ref: "residents"})
+  @Prop({ type: Types.ObjectId, required: false, ref: 'residents' })
   owner: Types.ObjectId;
 
   @Prop({ required: true })

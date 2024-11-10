@@ -1,9 +1,8 @@
-
-import { ConflictException, Controller } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
-import { AuthLoginDto } from './auth.dto';
+import { AuthLoginDto } from '@libs/dtos/auth.dto';
+import { RegisterResidentDto } from '@libs/dtos/resident.dto';
 import { AuthService } from './auth.service';
-import { RegisterResidentDto } from './resident.dto';
 
 @Controller()
 export class AuthController {
@@ -18,7 +17,11 @@ export class AuthController {
   }
 
   @MessagePattern({ cmd: 'registerSuperAdmin' })
-  async registerSuperAdmin(data: { email: string; password: string; tenantId: string }): Promise<any> {
+  async registerSuperAdmin(data: {
+    email: string;
+    password: string;
+    tenantId: string;
+  }): Promise<any> {
     try {
       return this.authService.registerSuperAdmin(data);
     } catch (error) {

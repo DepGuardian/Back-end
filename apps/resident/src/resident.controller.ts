@@ -1,6 +1,6 @@
 import { MessagePattern } from '@nestjs/microservices';
-import { ResidentService } from './resident.service';
 import { Controller } from '@nestjs/common';
+import { ResidentService } from './resident.service';
 
 @Controller()
 export class ResidentController {

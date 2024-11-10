@@ -1,4 +1,4 @@
-import { CreateApartmentDto } from '@api/dtos/apartment.dto';
+import { CreateApartmentDto } from '@libs/dtos/apartment.dto';
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -11,7 +11,7 @@ export class ApartmentClientService {
 
   async createApartment(registerData: CreateApartmentDto) {
     return firstValueFrom(
-      this.authClient.send({ cmd: 'createApartment' },registerData)
+      this.authClient.send({ cmd: 'createApartment' }, registerData),
     );
   }
 }

@@ -12,7 +12,7 @@ export class DatabaseConnectionService {
     // Inicializar la conexión general
     const uri = this.configService.get<string>('MONGODB_URI');
     this.generalConnection = mongoose.createConnection(uri, {
-      dbName: 'general'
+      dbName: 'general',
     });
   }
 
@@ -22,8 +22,8 @@ export class DatabaseConnectionService {
       const admin = this.generalConnection.db.admin();
       const result = await admin.listDatabases();
       const dbName = `tenant_${tenantId}`;
-      
-      return result.databases.some(db => db.name === dbName);
+
+      return result.databases.some((db) => db.name === dbName);
     } catch (error) {
       this.logger.error(`Error checking tenant existence: ${error.message}`);
       throw error;
@@ -34,7 +34,8 @@ export class DatabaseConnectionService {
     // Verificar si ya existe una conexión activa
     if (this.connections.has(tenantId)) {
       const connection = this.connections.get(tenantId);
-      if (connection.readyState === 1) { // Connected
+      if (connection.readyState === 1) {
+        // Connected
         return connection;
       }
       this.connections.delete(tenantId);
@@ -43,9 +44,11 @@ export class DatabaseConnectionService {
     try {
       // Verificar si el tenant existe antes de crear la conexión
       const tenantExists = await this.doesTenantExist(tenantId);
-      
+
       if (!tenantExists) {
-        throw new NotFoundException(`Tenant database ${tenantId} does not exist`);
+        throw new NotFoundException(
+          `Tenant database ${tenantId} does not exist`,
+        );
       }
 
       const uri = this.configService.get<string>('MONGODB_URI');
@@ -74,7 +77,10 @@ export class DatabaseConnectionService {
       if (error instanceof NotFoundException) {
         throw error;
       }
-      this.logger.error(`Failed to connect to tenant database ${tenantId}:`, error);
+      this.logger.error(
+        `Failed to connect to tenant database ${tenantId}:`,
+        error,
+      );
       throw new Error(`Failed to connect to tenant database: ${error.message}`);
     }
   }
@@ -89,7 +95,7 @@ export class DatabaseConnectionService {
 
   async closeAllConnections(): Promise<void> {
     await this.generalConnection.close();
-    for (const [tenantId, connection] of this.connections) {
+    for (const [tenantId] of this.connections) {
       await this.closeConnection(tenantId);
     }
   }
@@ -98,7 +104,7 @@ export class DatabaseConnectionService {
   async createTenant(tenantId: string): Promise<void> {
     try {
       const tenantExists = await this.doesTenantExist(tenantId);
-      
+
       if (tenantExists) {
         throw new Error(`Tenant ${tenantId} already exists`);
       }
@@ -120,5 +126,3 @@ export class DatabaseConnectionService {
     }
   }
 }
-
-

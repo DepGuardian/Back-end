@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Transport, MicroserviceOptions } from '@nestjs/microservices';
-import { ResidentModule } from './resident.module';
 import { Logger } from '@nestjs/common';
+import { ResidentModule } from './resident.module';
 
 async function bootstrap() {
   const logger = new Logger('Reisident Microservice');
