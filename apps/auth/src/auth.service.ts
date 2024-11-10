@@ -8,7 +8,7 @@ import { AuthLoginDto } from './auth.dto';
 import { ConfigService } from '@nestjs/config';
 import { RegisterResidentDto } from './resident.dto';
 import { Resident, ResidentSchema } from './schemas/resident.schema';
-import { DatabaseConnectionService } from '../../api-gateway/src/database/database.service';
+import { DatabaseConnectionService } from '@database/database.service';
 
 @Injectable()
 export class AuthService implements OnModuleInit {

@@ -6,7 +6,7 @@
     "paths": {
       "@api/*": ["src/*"],
       "@lib/common/*": ["../../libs/common/src/*"],
-      "@lib/database/*": ["../../libs/database/src/*"]
+      "@database/*": ["src/database/*"]  // Ruta local para api-gateway
     }
   },
   "include": ["src/**/*"],

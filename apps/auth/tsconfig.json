@@ -6,7 +6,7 @@
     "paths": {
       "@auth/*": ["src/*"],
       "@lib/common/*": ["../../libs/common/src/*"],
-      "@lib/database/*": ["../../libs/database/src/*"]
+      "@database/*": ["../../apps/api-gateway/src/database/*"]  // Nueva ruta
     }
   },
   "include": ["src/**/*"],
