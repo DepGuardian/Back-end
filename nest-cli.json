@@ -32,6 +32,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/auth/tsconfig.json"
       }
+    },
+    "apartments": {
+      "type": "application",
+      "root": "apps/apartments",
+      "entryFile": "main",
+      "sourceRoot": "apps/apartments/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/apartments/tsconfig.json"
+      }
     }
   }
 }
