@@ -8,6 +8,8 @@ import { ResidentClientModule } from './resident-client/resident-client.module';
 import { HealthModule } from './health/health.module';
 import { DatabaseModule } from './database/database.module';
 import { ResidentClientController } from './resident-client/resident-client.controller';
+import { ApartmentClientModule } from './apartment-client/apartment-client.module';
+import { ApartmentClientController } from './apartment-client/apartment-client.controller';
 
 @Module({
   imports: [
@@ -20,9 +22,10 @@ import { ResidentClientController } from './resident-client/resident-client.cont
     AuthClientModule,
     ResidentClientModule,
     HealthModule,
+    ApartmentClientModule,
     DatabaseModule,
   ],
-  controllers: [AppController, AuthClientController, ResidentClientController],
+  controllers: [AppController, AuthClientController, ApartmentClientController, ResidentClientController],
   providers: [AppService],
 })
 export class AppModule {}
