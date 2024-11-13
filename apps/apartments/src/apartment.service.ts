@@ -5,9 +5,9 @@ import {
   OnModuleInit,
   NotFoundException,
 } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import { Types, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
-import { CreateApartmentDto } from '@libs/dtos/apartment.dto';
+import { CreateApartmentDto, RefreshCodeDto } from '@libs/dtos/apartment.dto';
 import { ConfigService } from '@nestjs/config';
 import { Apartment, ApartmentSchema } from '@libs/schemas/apartment.schema';
 import { DatabaseConnectionService } from '@database/database.service';
@@ -83,6 +83,7 @@ export class ApartmentService implements OnModuleInit {
           ? new mongoose.Types.ObjectId(registerData.owner)
           : null,
         apartment: registerData.apartment,
+        code: this.getRandomInt(100000,999999)
       });
 
       // Guardar en la base de datos
@@ -110,4 +111,51 @@ export class ApartmentService implements OnModuleInit {
       throw new Error('Error registering apartment');
     }
   }
+
+    /* TODO: Refresh Code - Actualiza el codigo relacionado al apartamento para que el residente puede desbloquearlo y lo guarda en la BD (1-6 digitos aleatorio) */
+  // Necesitas Id Departamento, findByIdAndUpdate, Math.random, Math.floor, sabe
+
+  //Agregar Prop de code: number en Apartment
+
+  function
+    getRandomInt(min:number,max:number){
+      const minCeiled = Math.ceil(min);
+      const maxFloored = Math.floor(max);
+      return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
+    }
+
+
+  async refreshCode( registerData: RefreshCodeDto) {
+    this.logger.debug(`Refreshing code for apartment ID: ${registerData.apartmentId}`);
+
+    try{
+      const newCode = this.getRandomInt(100000,999999);
+
+      const tenantConnection =
+        await this.databaseConnectionService.getConnection(
+          registerData.tenantId,
+        );
+
+      const ApartmentModel = tenantConnection.model<Apartment>('Apartment', ApartmentSchema);
+
+      const updatedApartment = await  ApartmentModel.findByIdAndUpdate(registerData.apartmentId, {code: newCode}, {new: true, useFindAndModify: false});
+
+      if(!updatedApartment){
+        throw new NotFoundException(`Apartment with ID ${registerData.apartmentId} not found`)
+      }
+
+      //this.logger.debug(`Successfully refreshed code for apartment ID: ${registerData.apartmentId} with new code: ${newCode}`);
+
+      return updatedApartment;
+
+    } catch (error) {
+      this.logger.error(`Error refreshing code for apartment ID: ${registerData.apartmentId}`, error.stack);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new Error('Error refreshing code for apartment');
+    }
+  }
+
 }

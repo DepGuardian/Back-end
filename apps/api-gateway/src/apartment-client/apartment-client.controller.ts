@@ -7,8 +7,9 @@ import {
   Logger,
   NotFoundException,
   Post,
+  Put
 } from '@nestjs/common';
-import { CreateApartmentDto } from '@libs/dtos/apartment.dto';
+import { CreateApartmentDto, RefreshCodeDto } from '@libs/dtos/apartment.dto';
 import { ApartmentClientService } from './apartment-client.service';
 
 @Controller('apartment')
@@ -53,4 +54,40 @@ export class ApartmentClientController {
       );
     }
   }
+
+  @Put(`refreshCode`)
+  async refreshCode(@Body() registerData: RefreshCodeDto) {
+    try {
+      this.logger.debug(
+        `Attempting to refresh code for apartment id (${registerData.apartmentId}) in tenant(${registerData.tenantId})`,
+      );
+
+      const response =
+        await this.apartmentClientService.refreshCode(registerData);
+
+      this.logger.debug(
+        `Code Updated successfully to apartment with Id: (${registerData.apartmentId}) in tenant(${registerData.tenantId})`,
+      );
+
+      this.logger.log(response)
+
+      return response;
+    } catch (error) {
+      this.logger.error(
+        `Failed to update code for apartment with Id: (${registerData.apartmentId}) in tenant(${registerData.tenantId})`,
+        error.stack,
+      );
+
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException('apartment not found');
+      }
+
+      throw new HttpException(
+        'Error updating Apartment code',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }  
+
+
 }
