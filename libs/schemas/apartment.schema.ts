@@ -10,7 +10,7 @@ export type ApartmentDocument = Apartment & Document;
   versionKey: false,
 })
 export class Apartment {
-  @Prop({ type: Types.ObjectId, required: false, ref: 'residents' })
+  @Prop({ type: Types.ObjectId, required: false, ref: 'apartments' })
   owner: Types.ObjectId;
 
   @Prop({ required: true })
@@ -18,6 +18,9 @@ export class Apartment {
 
   @Prop({ required: true, unique: true })
   apartment: string;
+
+  @Prop({required: true})
+  code: number;
 }
 
 export const ApartmentSchema = SchemaFactory.createForClass(Apartment);
