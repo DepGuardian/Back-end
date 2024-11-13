@@ -50,6 +50,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/apartments/tsconfig.json"
       }
+    },
+    "todo": {
+      "type": "application",
+      "root": "apps/todo",
+      "entryFile": "main",
+      "sourceRoot": "apps/todo/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/todo/tsconfig.json"
+      }
     }
   }
 }

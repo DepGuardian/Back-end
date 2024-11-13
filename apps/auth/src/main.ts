@@ -12,7 +12,7 @@ async function bootstrap() {
       transport: Transport.TCP,
       options: {
         host: 'localhost',
-        port: 3001, // Asegúrate de que este puerto coincida con el configurado en AuthClientModule
+        port: 3001, 
       },
     },
   );
