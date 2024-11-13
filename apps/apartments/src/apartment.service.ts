@@ -110,4 +110,7 @@ export class ApartmentService implements OnModuleInit {
       throw new Error('Error registering apartment');
     }
   }
+
+  /* TODO: Refresh Code - Actualiza el codigo relacionado al apartamento para que el residente puede desbloquearlo y lo guarda en la BD (1-6 digitos aleatorio) */
+  // Necesitas Id Departamento, findByIdAndUpdate, Math.random, Math.floor, save
 }

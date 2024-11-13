@@ -12,7 +12,7 @@ export class TodoClientService {
   async createTodo(newtodo: CreateTodoDto) {
     try {
       const pattern = { cmd: 'create_todo' };
-      return firstValueFrom(this.todoClient.send(pattern, { newtodo }));
+      return firstValueFrom(this.todoClient.send(pattern, newtodo));
     } catch (error) {
       throw error;
     }
@@ -21,7 +21,7 @@ export class TodoClientService {
   async deleteTodo(todo: DeleteTodoDto) {
     try {
       const pattern = { cmd: 'delete_todo' };
-      return firstValueFrom(this.todoClient.send(pattern, { todo }));
+      return firstValueFrom(this.todoClient.send(pattern, todo));
     } catch (error) {
       throw error;
     }
@@ -30,7 +30,7 @@ export class TodoClientService {
   async getAllTodos(infotodo: GetAllTodosDto) {
     try {
       const pattern = { cmd: 'get_all_todos' };
-      return firstValueFrom(this.todoClient.send(pattern, { infotodo }));
+      return firstValueFrom(this.todoClient.send(pattern, infotodo));
     } catch (error) {
       throw error;
     }

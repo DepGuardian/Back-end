@@ -7,24 +7,25 @@ import { DatabaseConnectionService } from '@database/database.service';
 @Injectable()
 export class TodoService {
   private readonly logger = new Logger(TodoService.name);
-  private readonly databaseConnectionService: DatabaseConnectionService;
+ 
+  constructor(
+    private readonly databaseConnectionService: DatabaseConnectionService,
+  ) {}
 
-  async createTodo(newtodo: CreateTodoDto) {
-    this.logger.log(`Creating todo for tenant ${newtodo.tenantId}`);
-    
+  async createTodo(newtodo: CreateTodoDto) {    
     const newTodo: TodoDto = {
       id: new Types.ObjectId(),
       title: newtodo.data.title,
       done: false,
     };
     
-    this.logger.debug(`Created todo with ID: ${newTodo.id}`);
+    this.logger.debug(`Created todo with ID: ${newTodo.id} for tenant ${newtodo.tenantId}`);
     const tenantConnection = await this.databaseConnectionService.getConnection(newtodo.tenantId);
     const ResidentModel = tenantConnection.model<Resident>(
       'Resident',
       ResidentSchema,
     );
-    const residentUpdate = ResidentModel.findByIdAndUpdate(newtodo.tenantId, { $push: { todo_list: newTodo } });
+    const residentUpdate = ResidentModel.findByIdAndUpdate(newtodo.residentId, { $push: { todo_list: newTodo } });
     if(!residentUpdate) {
       throw new NotFoundException(`Resident with ID ${newtodo.residentId} not found`);
     }
@@ -37,10 +38,25 @@ export class TodoService {
       'Resident',
       ResidentSchema,
     );
-    const residentUpdate = ResidentModel.findByIdAndUpdate(todo.residentId, { $pull: { todo_list: { id: todo.todoId } } });
+
+    const residentUpdate = await ResidentModel.findOneAndUpdate(
+      { 
+        _id: new Types.ObjectId(todo.residentId),
+        'todo_list.id': new Types.ObjectId(todo.todoId) 
+      },
+      { 
+        $set: { 'todo_list.$.done': true } 
+      },
+      { new: true }
+    ).exec();
+    
+    this.logger.debug(`Resident update: ${JSON.stringify(residentUpdate)}`);
+    
+    this.logger.debug(`Updated todo with ID: ${todo.todoId} for tenant ${todo.tenantId}`);
     if(!residentUpdate) {
       throw new NotFoundException(`Resident with ID ${todo.residentId} not found`);
     }
+    
     return residentUpdate;
 
   }
@@ -55,6 +71,6 @@ export class TodoService {
     if(!resident) {
       throw new NotFoundException(`Resident with ID ${infotodo.residentId} not found`);
     }
-    return resident.todo_list;
+    return resident.todo_list.filter(todo => !todo.done);
   }
 }
