@@ -10,6 +10,8 @@ import { DatabaseModule } from '../../../libs/database/database.module';
 import { ResidentClientController } from './resident-client/resident-client.controller';
 import { ApartmentClientModule } from './apartment-client/apartment-client.module';
 import { ApartmentClientController } from './apartment-client/apartment-client.controller';
+import { TodoClientModule } from './todo-client/todo-client.module';
+import { TodoClientController } from './todo-client/todo-client.controller';
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { ApartmentClientController } from './apartment-client/apartment-client.c
     ResidentClientModule,
     HealthModule,
     ApartmentClientModule,
+    TodoClientModule,
     DatabaseModule,
   ],
   controllers: [
@@ -30,6 +33,7 @@ import { ApartmentClientController } from './apartment-client/apartment-client.c
     AuthClientController,
     ApartmentClientController,
     ResidentClientController,
+    TodoClientController,
   ],
   providers: [AppService],
 })

@@ -111,7 +111,7 @@ export class ApartmentService implements OnModuleInit {
       throw new Error('Error registering apartment');
     }
   }
-  
+
   async getAll(tenantId:string){
     this.logger.debug(`Getting all apartments from tenant: ${tenantId}`);
 
@@ -189,5 +189,4 @@ export class ApartmentService implements OnModuleInit {
       throw new Error('Error refreshing code for apartment');
     }
   }
-
 }
