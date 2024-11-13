@@ -1,11 +1,13 @@
 import {
   Body,
+  Query,
   ConflictException,
   Controller,
   HttpException,
   HttpStatus,
   Logger,
   NotFoundException,
+  Get,
   Post,
   Put
 } from '@nestjs/common';
@@ -54,6 +56,40 @@ export class ApartmentClientController {
       );
     }
   }
+
+  @Get(`getAll`)
+  async getAll(@Query(`tenantId`) tenantId:string) {
+    try {
+      this.logger.debug(
+        `Attempting to get all the apartments from tenant(${tenantId})`,
+      );
+
+      const response =
+        await this.apartmentClientService.getAll(tenantId);
+
+      this.logger.debug(
+        `All the apartments have been found from tenant: (${tenantId})`,
+      );
+
+      this.logger.log(response)
+
+      return response;
+    } catch (error) {
+      this.logger.error(
+        `Failed to get apartments in tenant(${tenantId})`,
+        error.stack,
+      );
+
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException('Apartments not found in tenant or the tenant doesnt exist');
+      }
+
+      throw new HttpException(
+        'Error getting all apartments from tenant',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }  
 
   @Put(`refreshCode`)
   async refreshCode(@Body() registerData: RefreshCodeDto) {

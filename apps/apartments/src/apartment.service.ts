@@ -111,6 +111,38 @@ export class ApartmentService implements OnModuleInit {
       throw new Error('Error registering apartment');
     }
   }
+  
+  async getAll(tenantId:string){
+    this.logger.debug(`Getting all apartments from tenant: ${tenantId}`);
+
+    try{
+
+      const tenantConnection =
+        await this.databaseConnectionService.getConnection(
+          tenantId,
+        );
+
+      const ApartmentModel = tenantConnection.model<Apartment>('Apartment', ApartmentSchema);
+
+      const allApartment = await ApartmentModel.find();
+
+      if(!allApartment){
+        throw new NotFoundException(`Apartments from tenant ${tenantId} not found`)
+      }
+
+      //this.logger.debug(`Successfully refreshed code for apartment ID: ${registerData.apartmentId} with new code: ${newCode}`);
+
+      return allApartment;
+
+    } catch (error) {
+      this.logger.error(`Error getting all apartments from tenant: ${tenantId}`, error.stack);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new Error('Error refreshing code for apartment');
+    }
+  }
 
     /* TODO: Refresh Code - Actualiza el codigo relacionado al apartamento para que el residente puede desbloquearlo y lo guarda en la BD (1-6 digitos aleatorio) */
   // Necesitas Id Departamento, findByIdAndUpdate, Math.random, Math.floor, sabe

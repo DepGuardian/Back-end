@@ -20,4 +20,10 @@ export class ApartmentClientService {
       this.authClient.send({cmd: 'refreshCode'}, registerData),
     );
   }
+
+  async getAll(tenantId:string){
+    return firstValueFrom(
+      this.authClient.send({cmd:'getAll'},tenantId)
+    )
+  }
 }
