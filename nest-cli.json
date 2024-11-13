@@ -1,12 +1,18 @@
 {
-  "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "monorepo": true,
-  "root": "apps/api-gateway",
-  "sourceRoot": "apps/api-gateway/src",
+  "sourceRoot": "apps",
   "compilerOptions": {
     "webpack": true,
-    "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
+    "tsConfigPath": "apps/auth/tsconfig.json",
+    "plugins": [
+      {
+        "name": "@nestjs/swagger",
+        "options": {
+          "classValidatorShim": true,
+          "introspectComments": true
+        }
+      }
+    ]
   },
   "projects": {
     "api-gateway": {
@@ -15,16 +21,43 @@
       "entryFile": "main",
       "sourceRoot": "apps/api-gateway/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
+        "tsConfigPath": "apps/api-gateway/tsconfig.json"
       }
     },
-    "user-service": {
+    "auth": {
       "type": "application",
-      "root": "apps/user-service",
+      "root": "apps/auth",
       "entryFile": "main",
-      "sourceRoot": "apps/user-service/src",
+      "sourceRoot": "apps/auth/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/user-service/tsconfig.app.json"
+        "tsConfigPath": "apps/auth/tsconfig.json"
+      }
+    },
+    "resident": {
+      "type": "application",
+      "root": "apps/resident",
+      "entryFile": "main",
+      "sourceRoot": "apps/resident/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/resident/tsconfig.json"
+      }
+    },
+    "apartments": {
+      "type": "application",
+      "root": "apps/apartments",
+      "entryFile": "main",
+      "sourceRoot": "apps/apartments/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/apartments/tsconfig.json"
+      }
+    },
+    "todo": {
+      "type": "application",
+      "root": "apps/todo",
+      "entryFile": "main",
+      "sourceRoot": "apps/todo/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/todo/tsconfig.json"
       }
     }
   }
