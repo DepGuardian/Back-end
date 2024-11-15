@@ -6,8 +6,7 @@ import {
   OnModuleInit,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { InjectConnection } from '@nestjs/mongoose';
+import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { DatabaseConnectionService } from '@database/database.service';
 import { User, UserDocument } from '@libs/schemas/user.schema';
@@ -21,10 +20,10 @@ export class AuthService implements OnModuleInit {
   private readonly logger = new Logger(AuthService.name);
 
   constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @InjectConnection() private connection: Connection,
-    private configService: ConfigService,
-    private databaseConnectionService: DatabaseConnectionService,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectConnection() private readonly connection: Connection,
+    private readonly configService: ConfigService,
+    private readonly databaseConnectionService: DatabaseConnectionService,
   ) {}
 
   async onModuleInit() {
@@ -98,16 +97,24 @@ export class AuthService implements OnModuleInit {
       });
 
       // Guardar en la base de datos
-      const savedUser = await newSuperAdmin.save();
+      const savedUser = (await newSuperAdmin.save()).toObject();
 
       this.logger.debug(
         `Successfully registered superadmin with email: ${registerData.email}`,
       );
 
       // Retornar usuario sin la contraseña
-      const { password, ...result } = savedUser.toObject();
+      const result = {
+        ...savedUser,
+        password: undefined,
+      };
+
       return result;
     } catch (error) {
+      this.logger.error(
+        `Error registering superadmin: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -158,14 +165,18 @@ export class AuthService implements OnModuleInit {
       });
 
       // Guardar en la base de datos
-      const savedResident = await newResident.save();
+      const savedResident = (await newResident.save()).toObject();
 
       this.logger.debug(
         `Successfully registered resident with email: ${registerData.email}`,
       );
 
       // Retornar residente sin la contraseña
-      const { password, ...result } = savedResident.toObject();
+      const result = {
+        ...savedResident,
+        password: undefined,
+      };
+
       return result;
     } catch (error) {
       this.logger.error(

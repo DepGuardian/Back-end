@@ -12,13 +12,13 @@ export class ApartmentController {
     return this.apartmentService.createApartment(data);
   }
 
-  @MessagePattern({cmd: 'refreshCode'})
-  async refreshCode(data: RefreshCodeDto){
+  @MessagePattern({ cmd: 'refreshCode' })
+  async refreshCode(data: RefreshCodeDto) {
     return this.apartmentService.refreshCode(data);
   }
 
-  @MessagePattern({cmd: 'getAll'})
-  async getAll(tenantId:string){
+  @MessagePattern({ cmd: 'getAll' })
+  async getAll(tenantId: string) {
     return this.apartmentService.getAll(tenantId);
   }
 }

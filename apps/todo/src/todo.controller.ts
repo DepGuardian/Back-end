@@ -1,7 +1,10 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
-import { Types } from 'mongoose';
-import { CreateTodoDto, DeleteTodoDto, GetAllTodosDto } from '../../../libs/dtos/todo.dto';
+import {
+  CreateTodoDto,
+  DeleteTodoDto,
+  GetAllTodosDto,
+} from '../../../libs/dtos/todo.dto';
 import { TodoService } from './todo.service';
 
 @Controller()
@@ -9,7 +12,7 @@ export class TodoController {
   constructor(private readonly todoService: TodoService) {}
 
   @MessagePattern({ cmd: 'create_todo' })
-  async createTodo(newtodo: CreateTodoDto){
+  async createTodo(newtodo: CreateTodoDto) {
     try {
       return this.todoService.createTodo(newtodo);
     } catch (error) {
@@ -17,7 +20,7 @@ export class TodoController {
       throw error;
     }
   }
-  
+
   @MessagePattern({ cmd: 'delete_todo' })
   async deleteTodo(todo: DeleteTodoDto) {
     try {
