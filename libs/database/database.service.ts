@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import mongoose, { Connection } from 'mongoose';
 
@@ -46,9 +46,7 @@ export class DatabaseConnectionService {
       const tenantExists = await this.doesTenantExist(tenantId);
 
       if (!tenantExists) {
-        throw new NotFoundException(
-          `Tenant database ${tenantId} does not exist`,
-        );
+        return null;
       }
 
       const uri = this.configService.get<string>('MONGODB_URI');
@@ -74,9 +72,6 @@ export class DatabaseConnectionService {
       this.connections.set(tenantId, connection);
       return connection;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
       this.logger.error(
         `Failed to connect to tenant database ${tenantId}:`,
         error,

@@ -1,4 +1,3 @@
-// apps/auth/src/schemas/resident.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types, Document } from 'mongoose';
 

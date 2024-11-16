@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ApartmentClientService } from './apartment-client.service';
+import { ApartmentClientController } from './apartment-client.controller';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ApartmentClientService } from './apartment-client.service';
       },
     ]),
   ],
+  controllers: [ApartmentClientController],
   providers: [ApartmentClientService],
   exports: [ApartmentClientService],
 })

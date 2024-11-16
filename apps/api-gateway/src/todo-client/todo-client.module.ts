@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TodoClientService } from './todo-client.service';
+import { TodoClientController } from './todo-client.controller';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { TodoClientService } from './todo-client.service';
       },
     ]),
   ],
+  controllers: [TodoClientController],
   providers: [TodoClientService],
   exports: [TodoClientService],
 })

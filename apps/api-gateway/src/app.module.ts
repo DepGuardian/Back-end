@@ -1,17 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from '@libs/database/database.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthClientModule } from './auth-client/auth-client.module';
-import { AuthClientController } from './auth-client/auth-client.controller';
-import { ResidentClientModule } from './resident-client/resident-client.module';
 import { HealthModule } from './health/health.module';
-import { DatabaseModule } from '../../../libs/database/database.module';
-import { ResidentClientController } from './resident-client/resident-client.controller';
+import { AuthClientModule } from './auth-client/auth-client.module';
+import { ResidentClientModule } from './resident-client/resident-client.module';
 import { ApartmentClientModule } from './apartment-client/apartment-client.module';
-import { ApartmentClientController } from './apartment-client/apartment-client.controller';
 import { TodoClientModule } from './todo-client/todo-client.module';
-import { TodoClientController } from './todo-client/todo-client.controller';
 
 @Module({
   imports: [
@@ -21,20 +17,14 @@ import { TodoClientController } from './todo-client/todo-client.controller';
       cache: true,
       expandVariables: true, // Permite el uso de variables dentro del .env
     }),
+    HealthModule,
     AuthClientModule,
     ResidentClientModule,
-    HealthModule,
     ApartmentClientModule,
     TodoClientModule,
     DatabaseModule,
   ],
-  controllers: [
-    AppController,
-    AuthClientController,
-    ApartmentClientController,
-    ResidentClientController,
-    TodoClientController,
-  ],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
