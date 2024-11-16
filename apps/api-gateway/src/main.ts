@@ -10,8 +10,8 @@ async function bootstrap() {
 
   // Configuración de Swagger
   const config = new DocumentBuilder()
-    .setTitle('Todo API')
-    .setDescription('API para gestión de tareas')
+    .setTitle('Manage Condominium API')
+    .setDescription('API para la gestión de condominios')
     .setVersion('1.0')
     .build();
 
