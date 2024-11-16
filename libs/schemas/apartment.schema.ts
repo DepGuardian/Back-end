@@ -19,7 +19,7 @@ export class Apartment {
   @Prop({ required: true, unique: true })
   apartment: string;
 
-  @Prop({required: true})
+  @Prop({ required: true })
   code: number;
 }
 

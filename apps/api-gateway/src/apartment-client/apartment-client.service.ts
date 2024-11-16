@@ -17,13 +17,11 @@ export class ApartmentClientService {
 
   async refreshCode(registerData: RefreshCodeDto) {
     return firstValueFrom(
-      this.authClient.send({cmd: 'refreshCode'}, registerData),
+      this.authClient.send({ cmd: 'refreshCode' }, registerData),
     );
   }
 
-  async getAll(tenantId:string){
-    return firstValueFrom(
-      this.authClient.send({cmd:'getAll'},tenantId)
-    )
+  async getAll(tenantId: string) {
+    return firstValueFrom(this.authClient.send({ cmd: 'getAll' }, tenantId));
   }
 }

@@ -7,7 +7,7 @@ import { TodoModule } from './todo.module';
 async function bootstrap() {
   const logger = new Logger('TodoService');
   const configService = new ConfigService();
-  
+
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     TodoModule,
     {

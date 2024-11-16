@@ -9,7 +9,7 @@ import {
   NotFoundException,
   Get,
   Post,
-  Put
+  Put,
 } from '@nestjs/common';
 import { CreateApartmentDto, RefreshCodeDto } from '@libs/dtos/apartment.dto';
 import { ApartmentClientService } from './apartment-client.service';
@@ -58,20 +58,19 @@ export class ApartmentClientController {
   }
 
   @Get(`getAll`)
-  async getAll(@Query(`tenantId`) tenantId:string) {
+  async getAll(@Query(`tenantId`) tenantId: string) {
     try {
       this.logger.debug(
         `Attempting to get all the apartments from tenant(${tenantId})`,
       );
 
-      const response =
-        await this.apartmentClientService.getAll(tenantId);
+      const response = await this.apartmentClientService.getAll(tenantId);
 
       this.logger.debug(
         `All the apartments have been found from tenant: (${tenantId})`,
       );
 
-      this.logger.log(response)
+      this.logger.log(response);
 
       return response;
     } catch (error) {
@@ -81,7 +80,9 @@ export class ApartmentClientController {
       );
 
       if (error instanceof NotFoundException) {
-        throw new NotFoundException('Apartments not found in tenant or the tenant doesnt exist');
+        throw new NotFoundException(
+          'Apartments not found in tenant or the tenant doesnt exist',
+        );
       }
 
       throw new HttpException(
@@ -89,7 +90,7 @@ export class ApartmentClientController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-  }  
+  }
 
   @Put(`refreshCode`)
   async refreshCode(@Body() registerData: RefreshCodeDto) {
@@ -105,7 +106,7 @@ export class ApartmentClientController {
         `Code Updated successfully to apartment with Id: (${registerData.apartmentId}) in tenant(${registerData.tenantId})`,
       );
 
-      this.logger.log(response)
+      this.logger.log(response);
 
       return response;
     } catch (error) {
@@ -123,7 +124,5 @@ export class ApartmentClientController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-  }  
-
-
+  }
 }

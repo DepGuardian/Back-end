@@ -1,14 +1,13 @@
 import { Types } from 'mongoose';
-import { IsString } from 'class-validator'
 
 export interface CreateApartmentDto {
-  owner: Types.ObjectId;
+  owner: string;
   floor: number;
   apartment: string;
   tenantId?: string;
 }
 
 export class RefreshCodeDto {
-  apartmentId: Types.ObjectId
+  apartmentId: Types.ObjectId;
   tenantId: string;
 }

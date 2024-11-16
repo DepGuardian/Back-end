@@ -10,7 +10,7 @@ import { TodoClientService } from './todo-client.service';
         transport: Transport.TCP,
         options: {
           host: 'localhost',
-          port: 3004, 
+          port: 3004,
         },
       },
     ]),

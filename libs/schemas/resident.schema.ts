@@ -1,7 +1,7 @@
 // apps/auth/src/schemas/resident.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { TodoDto } from '../dtos/todo.dto'; 
+import { TodoDto } from '../dtos/todo.dto';
 
 export type ResidentDocument = Resident & Document;
 

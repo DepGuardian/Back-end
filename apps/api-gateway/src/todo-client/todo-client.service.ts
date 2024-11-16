@@ -1,6 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { CreateTodoDto, DeleteTodoDto, GetAllTodosDto } from '../../../../libs/dtos/todo.dto';
+import {
+  CreateTodoDto,
+  DeleteTodoDto,
+  GetAllTodosDto,
+} from '@libs/dtos/todo.dto';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()

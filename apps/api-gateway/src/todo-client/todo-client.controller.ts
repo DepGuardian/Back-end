@@ -1,5 +1,9 @@
 import { Controller, Logger, Get, Query, Body, Post } from '@nestjs/common';
-import { CreateTodoDto, DeleteTodoDto, GetAllTodosDto } from '../../../../libs/dtos/todo.dto';
+import {
+  CreateTodoDto,
+  DeleteTodoDto,
+  GetAllTodosDto,
+} from '@libs/dtos/todo.dto';
 import { TodoClientService } from './todo-client.service';
 import { Types } from 'mongoose';
 
@@ -40,12 +44,18 @@ export class TodoClientController {
   }
 
   @Get('all')
-  async getAllTodos(@Query('tenantId') tenantId: string, @Query('residentId') residentId: Types.ObjectId) {
+  async getAllTodos(
+    @Query('tenantId') tenantId: string,
+    @Query('residentId') residentId: Types.ObjectId,
+  ) {
     try {
-      this.logger.debug(
-        `Attempting to get all todos for tenant: ${tenantId}`,
+      this.logger.debug(`Attempting to get all todos for tenant: ${tenantId}`);
+      const response: GetAllTodosDto = await this.todoClientService.getAllTodos(
+        {
+          tenantId,
+          residentId,
+        },
       );
-      const response = await this.todoClientService.getAllTodos({ tenantId, residentId });
       this.logger.debug(`Todos retrieved successfully`);
       return response;
     } catch (error) {
