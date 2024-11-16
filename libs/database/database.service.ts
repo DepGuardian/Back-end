@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import mongoose, { Connection } from 'mongoose';
 
@@ -8,7 +8,7 @@ export class DatabaseConnectionService {
   private readonly connections: Map<string, Connection> = new Map();
   private readonly generalConnection: Connection;
 
-  constructor(private configService: ConfigService) {
+  constructor(private readonly configService: ConfigService) {
     // Inicializar la conexión general
     const uri = this.configService.get<string>('MONGODB_URI');
     this.generalConnection = mongoose.createConnection(uri, {
@@ -46,13 +46,11 @@ export class DatabaseConnectionService {
       const tenantExists = await this.doesTenantExist(tenantId);
 
       if (!tenantExists) {
-        throw new NotFoundException(
-          `Tenant database ${tenantId} does not exist`,
-        );
+        return null;
       }
 
       const uri = this.configService.get<string>('MONGODB_URI');
-      const connection = await mongoose.createConnection(uri, {
+      const connection = mongoose.createConnection(uri, {
         dbName: `tenant_${tenantId}`,
         autoCreate: true, // Desactivar la creación automática
       });
@@ -74,9 +72,6 @@ export class DatabaseConnectionService {
       this.connections.set(tenantId, connection);
       return connection;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
       this.logger.error(
         `Failed to connect to tenant database ${tenantId}:`,
         error,
@@ -110,14 +105,10 @@ export class DatabaseConnectionService {
       }
 
       const uri = this.configService.get<string>('MONGODB_URI');
-      const tempConnection = await mongoose.createConnection(uri, {
+      const tempConnection = mongoose.createConnection(uri, {
         dbName: `tenant_${tenantId}`,
         autoCreate: true,
       });
-
-      // Crear las colecciones necesarias aquí
-      // await tempConnection.createCollection('users');
-      // await tempConnection.createCollection('other_collection');
 
       await tempConnection.close();
     } catch (error) {

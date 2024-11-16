@@ -1,65 +1,40 @@
-import {
-  Injectable,
-  Logger,
-  ConflictException,
-  OnModuleInit,
-  NotFoundException,
-} from '@nestjs/common';
-import { Types, Connection } from 'mongoose';
-import { InjectConnection } from '@nestjs/mongoose';
+import { Injectable, Logger, HttpStatus } from '@nestjs/common';
+import mongoose from 'mongoose';
 import { CreateApartmentDto, RefreshCodeDto } from '@libs/dtos/apartment.dto';
-import { ConfigService } from '@nestjs/config';
 import { Apartment, ApartmentSchema } from '@libs/schemas/apartment.schema';
 import { DatabaseConnectionService } from '@database/database.service';
-import mongoose from 'mongoose';
+import { ResponseDto } from '@libs/dtos/response.dto';
+import { TypeErrors } from '@libs/constants/errors';
 
 @Injectable()
-export class ApartmentService implements OnModuleInit {
+export class ApartmentService {
   private readonly logger = new Logger(ApartmentService.name);
 
   constructor(
-    @InjectConnection() private connection: Connection,
-    private configService: ConfigService,
-    private databaseConnectionService: DatabaseConnectionService,
+    private readonly databaseConnectionService: DatabaseConnectionService,
   ) {}
 
-  async onModuleInit() {
-    // Verificar la conexión al iniciar el servicio
-    this.logger.debug(
-      `MongoDB URI: ${this.configService.get<string>('MONGODB_URI')}`,
-    );
-    this.logger.debug(
-      `Connected to database: ${this.connection.db.databaseName}`,
-    );
-
-    // Verificar que estamos en la base de datos correcta
-    if (this.connection.db.databaseName !== 'general') {
-      this.logger.error(
-        'Connected to wrong database! Expected "general" but got "' +
-          this.connection.db.databaseName +
-          '"',
-      );
-      throw new Error('Wrong database connection');
-    }
-
-    // Listar todas las colecciones para verificar
-    const collections = await this.connection.db.listCollections().toArray();
-    this.logger.debug(
-      'Available collections: ' + collections.map((c) => c.name).join(', '),
-    );
+  private getRandomInt(min: number, max: number) {
+    const minCeiled = Math.ceil(min);
+    const maxFloored = Math.floor(max);
+    return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
   }
 
-  async createApartment(registerData: CreateApartmentDto) {
-    this.logger.debug(
-      `Attempting to createApartment with : ${registerData.apartment} for tenant: ${registerData.tenantId}`,
-    );
-
+  async createApartment(
+    registerData: CreateApartmentDto,
+  ): Promise<ResponseDto> {
     try {
-      // Obtenemos la conexión específica para el tenant
       const tenantConnection =
         await this.databaseConnectionService.getConnection(
           registerData.tenantId,
         );
+      if (!tenantConnection) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.TENANT_NOT_FOUND,
+        };
+      }
 
       // Creamos el modelo de Apartment para esta conexión específica
       const ApartmentModel = tenantConnection.model<Apartment>(
@@ -73,120 +48,137 @@ export class ApartmentService implements OnModuleInit {
       });
 
       if (existingApartment) {
-        throw new ConflictException('apartment number already exists');
+        return {
+          status: HttpStatus.CONFLICT,
+          data: null,
+          errorMessage: TypeErrors.APARTMENT_ALREADY_EXISTS,
+        };
       }
 
       // Crear el apartmente
       const newApartment = new ApartmentModel({
         floor: registerData.floor,
         owner: registerData.owner
-          ? new mongoose.Types.ObjectId(registerData.owner)
+          ? mongoose.Types.ObjectId.createFromHexString(registerData.owner)
           : null,
         apartment: registerData.apartment,
-        code: this.getRandomInt(100000,999999)
+        code: this.getRandomInt(100000, 999999),
       });
 
       // Guardar en la base de datos
       const savedApartment = await newApartment.save();
 
-      this.logger.debug(
-        `Successfully registered apartment with number: ${registerData.apartment}`,
-      );
-
       // Retornar apartment
-      return savedApartment;
+      return {
+        status: HttpStatus.CREATED,
+        data: savedApartment,
+        errorMessage: null,
+      };
     } catch (error) {
       this.logger.error(
         `Error registering apartment: ${error.message}`,
         error.stack,
       );
 
-      if (error instanceof ConflictException) {
-        throw error;
-      }
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
-      throw new Error('Error registering apartment');
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        errorMessage: TypeErrors.INTERNAL_SERVER_ERROR,
+      };
     }
   }
 
-  async getAll(tenantId:string){
-    this.logger.debug(`Getting all apartments from tenant: ${tenantId}`);
-
-    try{
-
+  async getAll(tenantId: string): Promise<ResponseDto> {
+    try {
       const tenantConnection =
-        await this.databaseConnectionService.getConnection(
-          tenantId,
-        );
+        await this.databaseConnectionService.getConnection(tenantId);
 
-      const ApartmentModel = tenantConnection.model<Apartment>('Apartment', ApartmentSchema);
+      if (!tenantConnection) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.TENANT_NOT_FOUND,
+        };
+      }
+
+      const ApartmentModel = tenantConnection.model<Apartment>(
+        'Apartment',
+        ApartmentSchema,
+      );
 
       const allApartment = await ApartmentModel.find();
 
-      if(!allApartment){
-        throw new NotFoundException(`Apartments from tenant ${tenantId} not found`)
-      }
-
-      //this.logger.debug(`Successfully refreshed code for apartment ID: ${registerData.apartmentId} with new code: ${newCode}`);
-
-      return allApartment;
-
+      return {
+        status: HttpStatus.OK,
+        data: allApartment,
+        errorMessage: null,
+      };
     } catch (error) {
-      this.logger.error(`Error getting all apartments from tenant: ${tenantId}`, error.stack);
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      this.logger.error(
+        `Error getting all apartments from tenant: ${tenantId}`,
+        error.stack,
+      );
 
-      throw new Error('Error refreshing code for apartment');
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        errorMessage: TypeErrors.INTERNAL_SERVER_ERROR,
+      };
     }
   }
 
-    /* TODO: Refresh Code - Actualiza el codigo relacionado al apartamento para que el residente puede desbloquearlo y lo guarda en la BD (1-6 digitos aleatorio) */
-  // Necesitas Id Departamento, findByIdAndUpdate, Math.random, Math.floor, sabe
-
-  //Agregar Prop de code: number en Apartment
-
-  function
-    getRandomInt(min:number,max:number){
-      const minCeiled = Math.ceil(min);
-      const maxFloored = Math.floor(max);
-      return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
-    }
-
-
-  async refreshCode( registerData: RefreshCodeDto) {
-    this.logger.debug(`Refreshing code for apartment ID: ${registerData.apartmentId}`);
-
-    try{
-      const newCode = this.getRandomInt(100000,999999);
+  async refreshCode(registerData: RefreshCodeDto): Promise<ResponseDto> {
+    try {
+      const newCode = this.getRandomInt(100000, 999999);
 
       const tenantConnection =
         await this.databaseConnectionService.getConnection(
           registerData.tenantId,
         );
 
-      const ApartmentModel = tenantConnection.model<Apartment>('Apartment', ApartmentSchema);
-
-      const updatedApartment = await  ApartmentModel.findByIdAndUpdate(registerData.apartmentId, {code: newCode}, {new: true, useFindAndModify: false});
-
-      if(!updatedApartment){
-        throw new NotFoundException(`Apartment with ID ${registerData.apartmentId} not found`)
+      if (!tenantConnection) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.TENANT_NOT_FOUND,
+        };
       }
 
-      //this.logger.debug(`Successfully refreshed code for apartment ID: ${registerData.apartmentId} with new code: ${newCode}`);
+      const ApartmentModel = tenantConnection.model<Apartment>(
+        'Apartment',
+        ApartmentSchema,
+      );
 
-      return updatedApartment;
+      const updatedApartment = await ApartmentModel.findByIdAndUpdate(
+        registerData.apartmentId,
+        { code: newCode },
+        { new: true, useFindAndModify: false },
+      );
 
+      if (!updatedApartment) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.APARTMENT_NOT_FOUND,
+        };
+      }
+
+      return {
+        status: HttpStatus.OK,
+        data: updatedApartment,
+        errorMessage: null,
+      };
     } catch (error) {
-      this.logger.error(`Error refreshing code for apartment ID: ${registerData.apartmentId}`, error.stack);
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      this.logger.error(
+        `Error refreshing code for apartment ID: ${registerData.apartmentId}`,
+        error.stack,
+      );
 
-      throw new Error('Error refreshing code for apartment');
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        errorMessage: TypeErrors.INTERNAL_SERVER_ERROR,
+      };
     }
   }
 }
