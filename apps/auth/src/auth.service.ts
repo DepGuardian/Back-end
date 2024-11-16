@@ -1,19 +1,15 @@
 import { Model, Connection } from 'mongoose';
-import {
-  Injectable,
-  Logger,
-  ConflictException,
-  OnModuleInit,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, HttpStatus } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { DatabaseConnectionService } from '@database/database.service';
 import { User, UserDocument } from '@libs/schemas/user.schema';
-import { AuthLoginDto } from '@libs/dtos/auth.dto';
+import { AuthLoginDto, AuthRegisterSuperAdminDto } from '@libs/dtos/auth.dto';
 import { RegisterResidentDto } from '@libs/dtos/resident.dto';
 import { Resident, ResidentSchema } from '@libs/schemas/resident.schema';
 import * as argon2 from 'argon2';
+import { TypeErrors } from '@libs/constants/errors';
+import { ResponseDto } from '@libs/dtos/response.dto';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -52,20 +48,18 @@ export class AuthService implements OnModuleInit {
     );
   }
 
-  async login(loginData: AuthLoginDto) {
+  async login(loginData: AuthLoginDto): Promise<ResponseDto> {
     this.logger.debug(`Attempting login for user: ${loginData.email}`);
-    return 'Login successful';
+    return {
+      status: HttpStatus.OK,
+      data: null,
+      errorMessage: null,
+    };
   }
 
-  async registerSuperAdmin(registerData: {
-    email: string;
-    password: string;
-    tenantId: string;
-  }) {
-    this.logger.debug(
-      `Attempting to register superadmin with email: ${registerData.email}`,
-    );
-
+  async registerSuperAdmin(
+    registerData: AuthRegisterSuperAdminDto,
+  ): Promise<ResponseDto> {
     try {
       // Verificar si el email ya existe
       const existingUser = await this.userModel
@@ -75,10 +69,11 @@ export class AuthService implements OnModuleInit {
         .exec();
 
       if (existingUser) {
-        this.logger.warn(
-          `Registration failed: Email ${registerData.email} already exists`,
-        );
-        throw new ConflictException('Email already exists');
+        return {
+          status: HttpStatus.CONFLICT,
+          data: null,
+          errorMessage: TypeErrors.EMAIL_ALREADY_EXISTS,
+        };
       }
 
       // Hash de la contraseña usando argon2
@@ -99,37 +94,47 @@ export class AuthService implements OnModuleInit {
       // Guardar en la base de datos
       const savedUser = (await newSuperAdmin.save()).toObject();
 
-      this.logger.debug(
-        `Successfully registered superadmin with email: ${registerData.email}`,
-      );
-
       // Retornar usuario sin la contraseña
       const result = {
         ...savedUser,
         password: undefined,
       };
 
-      return result;
+      return {
+        status: HttpStatus.CREATED,
+        data: result,
+        errorMessage: null,
+      };
     } catch (error) {
       this.logger.error(
         `Error registering superadmin: ${error.message}`,
         error.stack,
       );
-      throw error;
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        errorMessage: TypeErrors.INTERNAL_SERVER_ERROR,
+      };
     }
   }
 
-  async registerResident(registerData: RegisterResidentDto) {
-    this.logger.debug(
-      `Attempting to register resident with email: ${registerData.email} for tenant: ${registerData.tenantId}`,
-    );
-
+  async registerResident(
+    registerData: RegisterResidentDto,
+  ): Promise<ResponseDto> {
     try {
       // Obtenemos la conexión específica para el tenant
       const tenantConnection =
         await this.databaseConnectionService.getConnection(
           registerData.tenantId,
         );
+
+      if (!tenantConnection) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.TENANT_NOT_FOUND,
+        };
+      }
 
       // Creamos el modelo de Resident para esta conexión específica
       const ResidentModel = tenantConnection.model<Resident>(
@@ -143,7 +148,11 @@ export class AuthService implements OnModuleInit {
       });
 
       if (existingResident) {
-        throw new ConflictException('Email already exists');
+        return {
+          status: HttpStatus.CONFLICT,
+          data: null,
+          errorMessage: TypeErrors.EMAIL_ALREADY_EXISTS,
+        };
       }
 
       // Hash de la contraseña
@@ -160,16 +169,10 @@ export class AuthService implements OnModuleInit {
         email: registerData.email.toLowerCase(),
         password: hashedPassword,
         apartment: registerData.apartment,
-        isActive: true,
-        roles: ['resident'],
       });
 
       // Guardar en la base de datos
       const savedResident = (await newResident.save()).toObject();
-
-      this.logger.debug(
-        `Successfully registered resident with email: ${registerData.email}`,
-      );
 
       // Retornar residente sin la contraseña
       const result = {
@@ -177,26 +180,27 @@ export class AuthService implements OnModuleInit {
         password: undefined,
       };
 
-      return result;
+      return {
+        status: HttpStatus.CREATED,
+        data: result,
+        errorMessage: null,
+      };
     } catch (error) {
       this.logger.error(
         `Error registering resident: ${error.message}`,
         error.stack,
       );
 
-      if (error instanceof ConflictException) {
-        throw error;
-      }
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
-      throw new Error('Error registering resident');
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        errorMessage: TypeErrors.INTERNAL_SERVER_ERROR,
+      };
     }
   }
 
   // Método auxiliar para verificar contraseñas (lo usaremos luego para el login)
-  async verifyPassword(
+  private async verifyPassword(
     hashedPassword: string,
     plainPassword: string,
   ): Promise<boolean> {

@@ -1,13 +1,10 @@
-import {
-  Injectable,
-  Logger,
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, HttpStatus } from '@nestjs/common';
 import mongoose from 'mongoose';
 import { CreateApartmentDto, RefreshCodeDto } from '@libs/dtos/apartment.dto';
 import { Apartment, ApartmentSchema } from '@libs/schemas/apartment.schema';
 import { DatabaseConnectionService } from '@database/database.service';
+import { ResponseDto } from '@libs/dtos/response.dto';
+import { TypeErrors } from '@libs/constants/errors';
 
 @Injectable()
 export class ApartmentService {
@@ -23,17 +20,21 @@ export class ApartmentService {
     return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
   }
 
-  async createApartment(registerData: CreateApartmentDto) {
-    this.logger.debug(
-      `Attempting to createApartment with : ${registerData.apartment} for tenant: ${registerData.tenantId}`,
-    );
-
+  async createApartment(
+    registerData: CreateApartmentDto,
+  ): Promise<ResponseDto> {
     try {
-      // Obtenemos la conexión específica para el tenant
       const tenantConnection =
         await this.databaseConnectionService.getConnection(
           registerData.tenantId,
         );
+      if (!tenantConnection) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.TENANT_NOT_FOUND,
+        };
+      }
 
       // Creamos el modelo de Apartment para esta conexión específica
       const ApartmentModel = tenantConnection.model<Apartment>(
@@ -47,7 +48,11 @@ export class ApartmentService {
       });
 
       if (existingApartment) {
-        throw new ConflictException('apartment number already exists');
+        return {
+          status: HttpStatus.CONFLICT,
+          data: null,
+          errorMessage: TypeErrors.APARTMENT_ALREADY_EXISTS,
+        };
       }
 
       // Crear el apartmente
@@ -63,35 +68,38 @@ export class ApartmentService {
       // Guardar en la base de datos
       const savedApartment = await newApartment.save();
 
-      this.logger.debug(
-        `Successfully registered apartment with number: ${registerData.apartment}`,
-      );
-
       // Retornar apartment
-      return savedApartment;
+      return {
+        status: HttpStatus.CREATED,
+        data: savedApartment,
+        errorMessage: null,
+      };
     } catch (error) {
       this.logger.error(
         `Error registering apartment: ${error.message}`,
         error.stack,
       );
 
-      if (error instanceof ConflictException) {
-        throw error;
-      }
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
-      throw new Error('Error registering apartment');
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        errorMessage: TypeErrors.INTERNAL_SERVER_ERROR,
+      };
     }
   }
 
-  async getAll(tenantId: string) {
-    this.logger.debug(`Getting all apartments from tenant: ${tenantId}`);
-
+  async getAll(tenantId: string): Promise<ResponseDto> {
     try {
       const tenantConnection =
         await this.databaseConnectionService.getConnection(tenantId);
+
+      if (!tenantConnection) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.TENANT_NOT_FOUND,
+        };
+      }
 
       const ApartmentModel = tenantConnection.model<Apartment>(
         'Apartment',
@@ -100,33 +108,26 @@ export class ApartmentService {
 
       const allApartment = await ApartmentModel.find();
 
-      if (!allApartment) {
-        throw new NotFoundException(
-          `Apartments from tenant ${tenantId} not found`,
-        );
-      }
-
-      //this.logger.debug(`Successfully refreshed code for apartment ID: ${registerData.apartmentId} with new code: ${newCode}`);
-
-      return allApartment;
+      return {
+        status: HttpStatus.OK,
+        data: allApartment,
+        errorMessage: null,
+      };
     } catch (error) {
       this.logger.error(
         `Error getting all apartments from tenant: ${tenantId}`,
         error.stack,
       );
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
 
-      throw new Error('Error refreshing code for apartment');
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        errorMessage: TypeErrors.INTERNAL_SERVER_ERROR,
+      };
     }
   }
 
-  async refreshCode(registerData: RefreshCodeDto) {
-    this.logger.debug(
-      `Refreshing code for apartment ID: ${registerData.apartmentId}`,
-    );
-
+  async refreshCode(registerData: RefreshCodeDto): Promise<ResponseDto> {
     try {
       const newCode = this.getRandomInt(100000, 999999);
 
@@ -134,6 +135,14 @@ export class ApartmentService {
         await this.databaseConnectionService.getConnection(
           registerData.tenantId,
         );
+
+      if (!tenantConnection) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.TENANT_NOT_FOUND,
+        };
+      }
 
       const ApartmentModel = tenantConnection.model<Apartment>(
         'Apartment',
@@ -147,24 +156,29 @@ export class ApartmentService {
       );
 
       if (!updatedApartment) {
-        throw new NotFoundException(
-          `Apartment with ID ${registerData.apartmentId} not found`,
-        );
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.APARTMENT_NOT_FOUND,
+        };
       }
 
-      //this.logger.debug(`Successfully refreshed code for apartment ID: ${registerData.apartmentId} with new code: ${newCode}`);
-
-      return updatedApartment;
+      return {
+        status: HttpStatus.OK,
+        data: updatedApartment,
+        errorMessage: null,
+      };
     } catch (error) {
       this.logger.error(
         `Error refreshing code for apartment ID: ${registerData.apartmentId}`,
         error.stack,
       );
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
 
-      throw new Error('Error refreshing code for apartment');
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        errorMessage: TypeErrors.INTERNAL_SERVER_ERROR,
+      };
     }
   }
 }

@@ -5,9 +5,10 @@ import {
   Query,
   HttpException,
   Res,
+  HttpStatus,
 } from '@nestjs/common';
-import { ResidentClientService } from './resident-client.service';
 import { ResponseDto } from '@libs/dtos/response.dto';
+import { ResidentClientService } from './resident-client.service';
 
 @Controller('resident')
 export class ResidentClientController {
@@ -15,19 +16,22 @@ export class ResidentClientController {
 
   constructor(private readonly residentClientService: ResidentClientService) {}
 
-  @Get('all')
+  @Get()
   async getResidents(@Query('tenantId') tenantId: string, @Res() res: any) {
     try {
       this.logger.log(
         `Get all residents for TenantId ${tenantId}`,
-        `GET /resident/all?tenantId=${tenantId}`,
+        `GET /resident?tenantId=${tenantId}`,
       );
       const response: ResponseDto =
         await this.residentClientService.getResidents(tenantId);
       return res.status(response.status).json(response);
     } catch (error) {
       this.logger.error(`Failed to retrieve residents`, error.stack);
-      throw new HttpException('Failed to retrieve residents', 500);
+      throw new HttpException(
+        'Failed to retrieve residents',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

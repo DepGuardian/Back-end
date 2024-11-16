@@ -1,17 +1,16 @@
 import {
   Body,
-  ConflictException,
   Controller,
   HttpException,
   HttpStatus,
   Logger,
-  NotFoundException,
   Post,
   Res,
 } from '@nestjs/common';
-import { AuthLoginDto } from '@libs/dtos/auth.dto';
+import { AuthLoginDto, AuthRegisterSuperAdminDto } from '@libs/dtos/auth.dto';
 import { RegisterResidentDto } from '@libs/dtos/resident.dto';
 import { AuthClientService } from './auth-client.service';
+import { ResponseDto } from '@libs/dtos/response.dto';
 
 @Controller('auth')
 export class AuthClientController {
@@ -20,74 +19,70 @@ export class AuthClientController {
   constructor(private readonly authClientService: AuthClientService) {}
 
   @Post('login')
-  async login(@Body() loginData: AuthLoginDto) {
+  async login(@Body() loginData: AuthLoginDto, @Res() res: any) {
     try {
-      this.logger.debug(`Attempting login for user: ${loginData.email}`);
-      const response = await this.authClientService.login(loginData);
+      this.logger.log(
+        `Login user with email: ${loginData.email}`,
+        `POST /auth/login`,
+      );
+      const response: ResponseDto =
+        await this.authClientService.login(loginData);
       this.logger.debug(`Login successful for user: ${loginData.email}`);
-      return response;
+      return res.status(response.status).json(response);
     } catch (error) {
       this.logger.error(
         `Login failed for user: ${loginData.email}`,
         error.stack,
       );
-      throw error;
+      throw new HttpException('Login failed', HttpStatus.UNAUTHORIZED);
     }
   }
 
   @Post('registerSuperAdmin')
   async registerSuperAdmin(
-    @Body() registerData: { email: string; password: string; tenantId: string },
-    @Res() res,
+    @Body() registerData: AuthRegisterSuperAdminDto,
+    @Res() res: any,
   ) {
     try {
-      this.logger.debug(
-        `Attempting to register superadmin with email: ${registerData.email}`,
+      this.logger.log(
+        `Register superadmin with email: ${registerData.email}`,
+        `POST /auth/registerSuperAdmin`,
       );
-      const response =
+      const response: ResponseDto =
         await this.authClientService.registerSuperAdmin(registerData);
-      this.logger.debug(
-        `Superadmin registered with email: ${registerData.email}`,
-      );
-      return res.status(HttpStatus.CREATED).json(response);
+      return res.status(response.status).json(response);
     } catch (error) {
       this.logger.error(
         `Failed to register superadmin with email: ${registerData.email}`,
         error.stack,
       );
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .json({ message: error.message });
+      throw new HttpException(
+        'Failed to register superadmin',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   @Post('registerResident')
-  async registerResident(@Body() registerData: RegisterResidentDto) {
+  async registerResident(
+    @Body() registerData: RegisterResidentDto,
+    @Res() res: any,
+  ) {
     try {
-      this.logger.debug(
-        `Attempting to register resident with email: ${registerData.email} for tenant: ${registerData.tenantId}`,
+      this.logger.log(
+        `Register resident with email: ${registerData.email}`,
+        `POST /auth/registerResident`,
       );
 
-      const response =
+      const response: ResponseDto =
         await this.authClientService.registerResident(registerData);
 
-      this.logger.debug(
-        `Resident registered successfully with email: ${registerData.email}`,
-      );
-
-      return response;
+      return res.status(response.status).json(response);
     } catch (error) {
       this.logger.error(
         `Failed to register resident with email: ${registerData.email}`,
         error.stack,
       );
-
-      if (error instanceof ConflictException) {
-        throw new ConflictException('Email already exists');
-      }
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException('Tenant not found');
-      }
 
       throw new HttpException(
         'Error registering resident',

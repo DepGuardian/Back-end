@@ -1,8 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Module, Logger } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from '@libs/schemas/user.schema';
-import { Logger } from '@nestjs/common';
 import { DatabaseModule } from '@database/database.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';

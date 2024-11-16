@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { DatabaseConnectionService } from '@database/database.service';
 import { Resident, ResidentSchema } from '@libs/schemas/resident.schema';
 import { ResponseDto } from '@libs/dtos/response.dto';
@@ -18,7 +18,7 @@ export class ResidentService {
         await this.databaseConnectionService.getConnection(tenantId);
       if (!tenantConnection) {
         return {
-          status: 404,
+          status: HttpStatus.NOT_FOUND,
           data: null,
           errorMessage: TypeErrors.TENANT_NOT_FOUND,
         };
@@ -28,14 +28,14 @@ export class ResidentService {
         ResidentSchema,
       );
       return {
-        status: 200,
+        status: HttpStatus.OK,
         data: await ResidentModel.find().select('-password').exec(),
         errorMessage: null,
       };
     } catch (error) {
       this.logger.error('Error fetching residents:', error);
       return {
-        status: 500,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
         data: null,
         errorMessage: TypeErrors.INTERNAL_SERVER_ERROR,
       };

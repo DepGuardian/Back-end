@@ -1,11 +1,19 @@
-import { Controller, Logger, Get, Query, Body, Post } from '@nestjs/common';
 import {
-  CreateTodoDto,
-  DeleteTodoDto,
-  GetAllTodosDto,
-} from '@libs/dtos/todo.dto';
+  Controller,
+  Logger,
+  Get,
+  Query,
+  Body,
+  Post,
+  Delete,
+  Res,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+import { CreateTodoDto, DeleteTodoDto } from '@libs/dtos/todo.dto';
 import { TodoClientService } from './todo-client.service';
 import { Types } from 'mongoose';
+import { ResponseDto } from '@libs/dtos/response.dto';
 
 @Controller('todo')
 export class TodoClientController {
@@ -13,54 +21,66 @@ export class TodoClientController {
 
   constructor(private readonly todoClientService: TodoClientService) {}
 
-  @Post('create')
-  async createTodo(@Body() newtodo: CreateTodoDto) {
+  @Post()
+  async createTodo(@Body() newtodo: CreateTodoDto, @Res() res: any) {
     try {
-      this.logger.debug(
-        `Attempting to create todo for tenant: ${newtodo.tenantId}`,
+      this.logger.log(
+        `Create TODO for TenantId ${newtodo.tenantId}`,
+        `POST /todo`,
       );
-      const response = await this.todoClientService.createTodo(newtodo);
-      this.logger.debug(`Todo created successfully`);
-      return response;
+      const response: ResponseDto =
+        await this.todoClientService.createTodo(newtodo);
+      return res.status(response.status).json(response);
     } catch (error) {
       this.logger.error(`Failed to create todo`, error.stack);
-      throw error;
+      throw new HttpException(
+        'Failed to create todo',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  @Post('delete')
-  async deleteTodo(@Body() todo: DeleteTodoDto) {
+  @Delete()
+  async deleteTodo(@Body() todo: DeleteTodoDto, @Res() res: any) {
     try {
-      this.logger.debug(
-        `Attempting to delete todo for tenant: ${todo.tenantId}`,
+      this.logger.log(
+        `Delete TODO for TenantId ${todo.tenantId}`,
+        `DELETE /todo`,
       );
-      const response = await this.todoClientService.deleteTodo(todo);
-      this.logger.debug(`Todo deleted successfully`);
-      return response;
+      const response: ResponseDto =
+        await this.todoClientService.deleteTodo(todo);
+      return res.status(response.status).json(response);
     } catch (error) {
       this.logger.error(`Failed to delete todo`, error.stack);
-      throw error;
+      throw new HttpException(
+        'Failed to delete todo',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  @Get('all')
+  @Get()
   async getAllTodos(
     @Query('tenantId') tenantId: string,
     @Query('residentId') residentId: Types.ObjectId,
+    @Res() res: any,
   ) {
     try {
-      this.logger.debug(`Attempting to get all todos for tenant: ${tenantId}`);
-      const response: GetAllTodosDto = await this.todoClientService.getAllTodos(
-        {
-          tenantId,
-          residentId,
-        },
+      this.logger.log(
+        `Get all todos for TenantId ${tenantId}`,
+        `GET /todo?tenantId=${tenantId}&residentId=${residentId}`,
       );
-      this.logger.debug(`Todos retrieved successfully`);
-      return response;
+      const response: ResponseDto = await this.todoClientService.getAllTodos({
+        tenantId,
+        residentId,
+      });
+      return res.status(response.status).json(response);
     } catch (error) {
       this.logger.error(`Failed to retrieve todos`, error.stack);
-      throw error;
+      throw new HttpException(
+        'Failed to retrieve todos',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }
