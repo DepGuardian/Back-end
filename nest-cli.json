@@ -68,6 +68,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/reservation/tsconfig.json"
       }
+    },
+    "common_area": {
+      "type": "application",
+      "root": "apps/common-area",
+      "entryFile": "main",
+      "sourceRoot": "apps/common-area/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/common-area/tsconfig.json"
+      }
     }
   }
 }

@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types, Document } from 'mongoose';
-import { TimeInterval } from 'rxjs/internal/operators/timeInterval';
 
 export type CommonAreaDocument = CommonArea & Document;
 
@@ -14,8 +13,9 @@ export type CommonAreaDocument = CommonArea & Document;
     @Prop({ type: String, required: false })
     description: string;
 
-    @Prop({type: Types.ObjectId})
-    id: Types.ObjectId
+    @Prop({ type: Number, required: true,  min: 1})
+    capacity: number
+    
   }
   
   export const CommonAreaSchema = SchemaFactory.createForClass(CommonArea);
