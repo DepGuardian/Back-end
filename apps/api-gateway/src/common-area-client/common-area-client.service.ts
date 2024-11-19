@@ -29,4 +29,14 @@ export class CommonAreaClientService {
       throw new Error(error);
     }
   }
+
+  async getByStatus(tenantId: string, status: string) {
+    try {
+      const pattern = { cmd: 'getByStatus' };
+      return firstValueFrom(this.authClient.send(pattern, {tenantId, status})); // No se si esta bien esto
+    } catch (error) {
+      this.logger.error('Failed to retrieve common areas', error.stack);
+      throw new Error(error);
+    }
+  }
 }

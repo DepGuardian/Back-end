@@ -63,4 +63,26 @@ export class CommonAreaClientController {
       );
     }
   }
+
+  @Get()
+  async getByStatus(@Query(`tenantId`) tenantId: string, @Query(`status`) status:string ,@Res() res: any) {
+    try {
+      this.logger.log(
+        `Get all common areas for TenantId ${tenantId} with status: ${status}`,
+        `GET /commonarea?tenantId=${tenantId}?status=${status}`,
+      );
+
+      const response = await this.commonAreaClientService.getByStatus(tenantId,status);
+      return res.status(response.status).json(response);
+    } catch (error) {
+      this.logger.error(
+        `Failed to get common area in tenant(${tenantId}) with status: ${status}`,
+        error.stack,
+      );
+      throw new HttpException(
+        'Error getting common areas specified',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }
