@@ -7,7 +7,7 @@ import { firstValueFrom } from 'rxjs';
 export class ReservationClientService {
   private readonly logger = new Logger(ReservationClientService.name);
   constructor(
-    @Inject('APARTMENT_SERVICE') private readonly authClient: ClientProxy,
+    @Inject('RESERVATION_SERVICE') private readonly authClient: ClientProxy,
   ) {}
 
   async createReservation(registerData: CreateReservationDto) {
@@ -15,7 +15,7 @@ export class ReservationClientService {
       const pattern = { cmd: 'createReservation' };
       return firstValueFrom(this.authClient.send(pattern, registerData));
     } catch (error) {
-      this.logger.error('Failed to create apartment', error.stack);
+      this.logger.error('Failed to create reservation', error.stack);
       throw new Error(error);
     }
   }
@@ -25,7 +25,7 @@ export class ReservationClientService {
       const pattern = { cmd: 'getAll' };
       return firstValueFrom(this.authClient.send(pattern, tenantId));
     } catch (error) {
-      this.logger.error('Failed to retrieve apartments', error.stack);
+      this.logger.error('Failed to retrieve reservations', error.stack);
       throw new Error(error);
     }
   }

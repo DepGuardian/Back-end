@@ -10,7 +10,7 @@ export class ReservationController {
   private readonly logger = new Logger(ReservationController.name);
   constructor(private readonly reservationService: ReservationService) {}
 
-  @MessagePattern({ cmd: 'createApartment' })
+  @MessagePattern({ cmd: 'createReservation' })
   async createReservation(data: CreateReservationDto) {
     try {
       const response: ResponseDto =

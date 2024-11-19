@@ -27,16 +27,16 @@ export class ReservationClientController {
   ) {
     try {
       this.logger.log(
-        `Create apartment with data: ${JSON.stringify(registerData)}`,
-        `POST /apartment`,
+        `Create reservation with data: ${JSON.stringify(registerData)}`,
+        `POST /reservation`,
       );
       const response =
         await this.reservationClientService.createReservation(registerData);
       return res.status(response.status).json(response);
     } catch (error) {
-      this.logger.error('Failed to create apartment', error.stack);
+      this.logger.error('Failed to create reservation', error.stack);
       throw new HttpException(
-        'Error creating apartment',
+        'Error creating reservation',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -46,19 +46,19 @@ export class ReservationClientController {
   async getAll(@Query(`tenantId`) tenantId: string, @Res() res: any) {
     try {
       this.logger.log(
-        `Get all apartments for TenantId ${tenantId}`,
-        `GET /apartment?tenantId=${tenantId}`,
+        `Get all reservations for TenantId ${tenantId}`,
+        `GET /reservation?tenantId=${tenantId}`,
       );
 
       const response = await this.reservationClientService.getAll(tenantId);
       return res.status(response.status).json(response);
     } catch (error) {
       this.logger.error(
-        `Failed to get apartments in tenant(${tenantId})`,
+        `Failed to get reservations in tenant(${tenantId})`,
         error.stack,
       );
       throw new HttpException(
-        'Error getting all apartments from tenant',
+        'Error getting all reservations from tenant',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
