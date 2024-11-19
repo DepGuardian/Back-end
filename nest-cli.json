@@ -59,6 +59,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/todo/tsconfig.json"
       }
+    },
+    "reservation": {
+      "type": "application",
+      "root": "apps/reservation",
+      "entryFile": "main",
+      "sourceRoot": "apps/reservation/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/reservation/tsconfig.json"
+      }
     }
   }
 }
