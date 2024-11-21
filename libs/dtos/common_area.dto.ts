@@ -50,7 +50,7 @@ export class CreateCommonAreaDto {
     enum: ['Disponible', 'No Disponible'],
   })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @IsIn(['Disponible', 'No Disponible'], {
     message: 'El estado debe ser "disponible" o "no disponible"',
   })
