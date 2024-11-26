@@ -68,6 +68,24 @@
       "compilerOptions": {
         "tsConfigPath": "apps/chat/tsconfig.json"
       }
+    },
+    "reservation": {
+      "type": "application",
+      "root": "apps/reservation",
+      "entryFile": "main",
+      "sourceRoot": "apps/reservation/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/reservation/tsconfig.json"
+      }
+    },
+    "common_area": {
+      "type": "application",
+      "root": "apps/common-area",
+      "entryFile": "main",
+      "sourceRoot": "apps/common-area/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/common-area/tsconfig.json"
+      }
     }
   }
 }

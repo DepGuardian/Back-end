@@ -8,6 +8,8 @@ import { AuthClientModule } from './auth-client/auth-client.module';
 import { ResidentClientModule } from './resident-client/resident-client.module';
 import { ApartmentClientModule } from './apartment-client/apartment-client.module';
 import { TodoClientModule } from './todo-client/todo-client.module';
+import { ReservationClientModule } from './reservation-client/reservation-client.module';
+import { CommonAreaClientModule } from './common-area-client/common-area-client.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { TodoClientModule } from './todo-client/todo-client.module';
     ResidentClientModule,
     ApartmentClientModule,
     TodoClientModule,
+    ReservationClientModule,
+    CommonAreaClientModule,
     DatabaseModule,
   ],
   controllers: [AppController],
