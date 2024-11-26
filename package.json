@@ -16,6 +16,7 @@
     "start:dev:todo": "nest start todo --watch",
     "start:dev:reservation": "nest start reservation --watch",
     "start:dev:common_area": "nest start common_area --watch",
+    "start:dev:chat": "nest start chat --watch",
     "start:dev:all": "concurrently --prefix-colors \"blue.bold,green.bold,yellow.bold,red.bold,magenta.bold\" \"pnpm run start:dev:api\" \"pnpm run start:dev:auth\" \"pnpm run start:dev:apartment\" \"pnpm run start:dev:resident\" \"pnpm run start:dev:todo\" \"pnpm run start:dev:reservation\" \"pnpm run start:dev:common_area\" \"pnpm run start:dev:chat\"",
     "start:prod:api": "node dist/apps/api-gateway/main",
     "start:prod:auth": "node dist/apps/auth/main",
@@ -37,7 +38,9 @@
     "@nestjs/microservices": "^10.4.7",
     "@nestjs/mongoose": "^10.1.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-socket.io": "^10.4.9",
     "@nestjs/swagger": "^8.0.2",
+    "@nestjs/websockets": "^10.4.9",
     "argon2": "^0.41.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
@@ -45,6 +48,7 @@
     "mongoose": "^8.8.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
+    "socket.io": "^4.8.1",
     "uuid": "^11.0.3"
   },
   "devDependencies": {

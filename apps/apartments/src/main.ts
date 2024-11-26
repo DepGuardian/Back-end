@@ -12,7 +12,7 @@ async function bootstrap() {
       transport: Transport.TCP,
       options: {
         host: 'localhost',
-        port: 3002, // Asegúrate de que este puerto coincida con el configurado en ApartmentClientModule
+        port: 3016, // Asegúrate de que este puerto coincida con el configurado en ApartmentClientModule
       },
     },
   );
