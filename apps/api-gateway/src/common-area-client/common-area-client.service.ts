@@ -1,4 +1,4 @@
-import { CreateCommonAreaDto } from '@libs/dtos/common_area.dto';
+import { CreateCommonAreaDto,GetByNameDto, GetByStatusDto, DeleteCommonAreaDto } from '@libs/dtos/common_area.dto';
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -30,12 +30,32 @@ export class CommonAreaClientService {
     }
   }
 
-  async getByStatus(tenantId: string, status: string) {
+  async getByStatus(data: GetByStatusDto) {
     try {
       const pattern = { cmd: 'getByStatus' };
-      return firstValueFrom(this.authClient.send(pattern, {tenantId, status})); // No se si esta bien esto
+      return firstValueFrom(this.authClient.send(pattern,data)); // No se si esta bien esto
     } catch (error) {
       this.logger.error('Failed to retrieve common areas', error.stack);
+      throw new Error(error);
+    }
+  }
+
+  async getByName(data: GetByNameDto) {
+    try {
+      const pattern = { cmd: 'getByName' };
+      return firstValueFrom(this.authClient.send(pattern, data)); // No se si esta bien esto
+    } catch (error) {
+      this.logger.error('Failed to retrieve common areas', error.stack);
+      throw new Error(error);
+    }
+  }
+
+  async deleteCommonArea(data: DeleteCommonAreaDto) {
+    try {
+      const pattern = { cmd: 'deleteCommonArea' };
+      return firstValueFrom(this.authClient.send(pattern, data));
+    } catch (error) {
+      this.logger.error('Failed to delete common area', error.stack);
       throw new Error(error);
     }
   }
