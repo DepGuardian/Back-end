@@ -49,3 +49,15 @@ export class CreateReservationDto {
   @IsOptional()
   tenantId?: string;
 }
+
+export class DeleteReservationDto {
+  @ApiProperty({
+    example: '507f1f77bcf86cd799439011',
+    description: 'ID de la reserva',
+  })
+  @IsMongoId()
+  @IsNotEmpty({ message: 'El ID de la reservación es obligatorio' })
+  id: Types.ObjectId;
+  @IsOptional()
+  tenantId?: string;
+}

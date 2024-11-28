@@ -1,6 +1,6 @@
 import { Injectable, Logger, HttpStatus } from '@nestjs/common';
 import mongoose from 'mongoose';
-import { CreateReservationDto,} from '@libs/dtos/reservation.dto';
+import { CreateReservationDto,DeleteReservationDto} from '@libs/dtos/reservation.dto';
 import { Reservation, ReservationSchema } from '@libs/schemas/reservation.schema';
 import { DatabaseConnectionService } from '@database/database.service';
 import { ResponseDto } from '@libs/dtos/response.dto';
@@ -67,14 +67,14 @@ export class ReservationService {
         return {
           status: HttpStatus.CONFLICT,
           data: null,
-          errorMessage: TypeErrors.APARTMENT_ALREADY_EXISTS, // need new type error
+          errorMessage: TypeErrors.INVALID_INTERVAL, // need new type error
         };
       }
       if (existingReservationStart) {
         return {
           status: HttpStatus.CONFLICT,
           data: null,
-          errorMessage: TypeErrors.APARTMENT_ALREADY_EXISTS, // need new type error
+          errorMessage: TypeErrors.RESERVATION_IN_CONFLICT, // need new type error
         };
       }
 
@@ -82,7 +82,7 @@ export class ReservationService {
         return {
           status: HttpStatus.CONFLICT,
           data: null,
-          errorMessage: TypeErrors.APARTMENT_ALREADY_EXISTS, // need new type error
+          errorMessage: TypeErrors.RESERVATION_IN_CONFLICT, // need new type error
         };
       }
 
@@ -144,6 +144,55 @@ export class ReservationService {
     } catch (error) {
       this.logger.error(
         `Error getting all reservations from tenant: ${tenantId}`,
+        error.stack,
+      );
+
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        errorMessage: TypeErrors.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+
+  async deleteReservation(data: DeleteReservationDto): Promise<ResponseDto> {
+    try {
+      const tenantConnection =
+        await this.databaseConnectionService.getConnection(data.tenantId);
+
+      if (!tenantConnection) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.TENANT_NOT_FOUND,
+        };
+      }
+
+      const ReservationModel = tenantConnection.model<Reservation>(
+        'Reservation',
+        ReservationSchema,
+      );
+
+      const deletedReservation = await ReservationModel.findOneAndDelete({
+        id: data.id,
+      });
+
+      if (!deletedReservation) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.RESERVATION_NOT_FOUND,
+        };
+      }
+
+      return {
+        status: HttpStatus.OK,
+        data: deletedReservation,
+        errorMessage: null,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error deleting reservation: ${error.message}`,
         error.stack,
       );
 

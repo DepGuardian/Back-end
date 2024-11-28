@@ -1,4 +1,4 @@
-import { CreateReservationDto } from '@libs/dtos/reservation.dto';
+import { CreateReservationDto, DeleteReservationDto} from '@libs/dtos/reservation.dto';
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -26,6 +26,16 @@ export class ReservationClientService {
       return firstValueFrom(this.authClient.send(pattern, tenantId));
     } catch (error) {
       this.logger.error('Failed to retrieve reservations', error.stack);
+      throw new Error(error);
+    }
+  }
+
+  async deleteReservation(data: DeleteReservationDto) {
+    try {
+      const pattern = { cmd: 'deleteReservation' };
+      return firstValueFrom(this.authClient.send(pattern, data));
+    } catch (error) {
+      this.logger.error('Failed to delete reservation', error.stack);
       throw new Error(error);
     }
   }
