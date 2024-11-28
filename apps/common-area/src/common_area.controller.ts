@@ -1,6 +1,6 @@
 import { Controller, HttpStatus, Logger } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
-import { CreateCommonAreaDto, GetByStatusDto, GetByNameDto, DeleteCommonAreaDto} from '@libs/dtos/common_area.dto';
+import { CreateCommonAreaDto, GetByStatusDto, GetByNameDto, DeleteCommonAreaDto, UpdateCommonAreaDto} from '@libs/dtos/common_area.dto';
 import { CommonAreaService } from './common_area.service';
 import { ResponseDto } from '@libs/dtos/response.dto';
 import { TypeErrors } from '@libs/constants/errors';
@@ -110,6 +110,22 @@ export class CommonAreaController {
       return response;
     } catch (error) {
       this.logger.error('Error deleting common area:', error);
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        errorMessage: TypeErrors.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+
+  @MessagePattern({cmd: `updateCommonArea`})
+  async updateCommonArea(data: UpdateCommonAreaDto) {
+    try {
+      const response: ResponseDto =
+        await this.commonAreaService.updateCommonArea(data);
+      return response;
+    } catch (error) {
+      this.logger.error('Error updating common area:', error);
       return {
         status: HttpStatus.INTERNAL_SERVER_ERROR,
         data: null,

@@ -1,6 +1,6 @@
 import { Injectable, Logger, HttpStatus } from '@nestjs/common';
 import mongoose from 'mongoose';
-import { CreateCommonAreaDto, GetByNameDto, GetByStatusDto, DeleteCommonAreaDto } from '@libs/dtos/common_area.dto';
+import { CreateCommonAreaDto, GetByNameDto, GetByStatusDto, DeleteCommonAreaDto, UpdateCommonAreaDto } from '@libs/dtos/common_area.dto';
 import { CommonArea, CommonAreaSchema } from '@libs/schemas/common_area.schema';
 import { DatabaseConnectionService } from '@database/database.service';
 import { ResponseDto } from '@libs/dtos/response.dto';
@@ -259,6 +259,45 @@ export class CommonAreaService {
       };
     } catch (error) {
       this.logger.error(`Error deleting common area: ${error.message}`);
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        errorMessage: TypeErrors.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+
+  async updateCommonArea(data: UpdateCommonAreaDto): Promise<ResponseDto> {
+    const commonAreaModel = await this.getCommonAreaModel(data.tenantId);
+
+    if (!commonAreaModel || 'status' in commonAreaModel) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        data: null,
+        errorMessage: TypeErrors.TENANT_NOT_FOUND,
+      };
+    }
+
+    try {
+      const result = await commonAreaModel.findByIdAndUpdate(data.id, data, {
+        new: true,
+      });
+
+      if (!result) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.COMMON_AREA_NOT_FOUND,
+        };
+      }
+
+      return {
+        status: HttpStatus.OK,
+        data: result,
+        errorMessage: null,
+      };
+    } catch (error) {
+      this.logger.error(`Error updating common area: ${error.message}`);
       return {
         status: HttpStatus.INTERNAL_SERVER_ERROR,
         data: null,

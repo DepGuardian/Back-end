@@ -1,4 +1,4 @@
-import { CreateCommonAreaDto,GetByNameDto, GetByStatusDto, DeleteCommonAreaDto } from '@libs/dtos/common_area.dto';
+import { CreateCommonAreaDto,GetByNameDto, GetByStatusDto, DeleteCommonAreaDto, UpdateCommonAreaDto } from '@libs/dtos/common_area.dto';
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -56,6 +56,16 @@ export class CommonAreaClientService {
       return firstValueFrom(this.authClient.send(pattern, data));
     } catch (error) {
       this.logger.error('Failed to delete common area', error.stack);
+      throw new Error(error);
+    }
+  }
+
+  async updateCommonArea(data: UpdateCommonAreaDto) {
+    try {
+      const pattern = { cmd: 'updateCommonArea' };
+      return firstValueFrom(this.authClient.send(pattern, data));
+    } catch (error) {
+      this.logger.error('Failed to update common area', error.stack);
       throw new Error(error);
     }
   }

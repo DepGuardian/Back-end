@@ -10,7 +10,7 @@ import {
   Res,
   Delete,
 } from '@nestjs/common';
-import { CreateCommonAreaDto,DeleteCommonAreaDto,GetByNameDto,GetByStatusDto} from '@libs/dtos/common_area.dto';
+import { CreateCommonAreaDto,DeleteCommonAreaDto,GetByNameDto,GetByStatusDto,UpdateCommonAreaDto} from '@libs/dtos/common_area.dto';
 import { CommonAreaClientService } from './common-area-client.service';
 
 @Controller('commonarea')
@@ -138,6 +138,21 @@ export class CommonAreaClientController {
       this.logger.error('Error deleting common area:', error);
       throw new HttpException(
         'Error deleting common area',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Post('update')
+  async updateCommonArea(@Body() data: UpdateCommonAreaDto) {
+    try {
+      const response: Response =
+        await this.commonAreaClientService.updateCommonArea(data);
+      return response;
+    } catch (error) {
+      this.logger.error('Error updating common area:', error);
+      throw new HttpException(
+        'Error updating common area',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

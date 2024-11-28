@@ -92,12 +92,12 @@ export class DeleteCommonAreaDto{
 export class UpdateCommonAreaDto{
   @ApiProperty({
     example: 'tenant-123',
-    description: 'ID del tenant asociado al apartamento',
+    description: 'ID del tenant asociado a la sala comun',
   })
   tenantId: string;
   @ApiProperty({
     example: '507f1f77bcf86cd799439011',
-    description: 'ID de MongoDB del apartamento',
+    description: 'ID de MongoDB de la sala commun',
   }) 
   id: Types.ObjectId;
   @ApiProperty({
