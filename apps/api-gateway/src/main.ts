@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -25,6 +26,11 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
+
+  app.enableCors()
+
+  app.useWebSocketAdapter(new IoAdapter(app));
+  
 
   Logger.log(
     `Server is running on http://localhost:${process.env.PORT ?? 3000}`,

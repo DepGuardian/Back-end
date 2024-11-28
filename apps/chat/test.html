@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 20px;
+        }
+
+        .connection-panel, .room-panel {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .chat-panel {
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .messages {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .message {
+            margin-bottom: 8px;
+            padding: 5px;
+            background-color: #f9f9f9;
+            border-radius: 3px;
+        }
+
+        input[type="text"], input[type="submit"] {
+            padding: 5px;
+            margin: 5px 0;
+            width: 90%;
+        }
+
+        button {
+            padding: 5px 10px;
+            margin: 5px 0;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .message-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input {
+            flex-grow: 1;
+        }
+
+        .status {
+            color: #666;
+            font-style: italic;
+            margin: 5px 0;
+        }
+
+        .error {
+            color: red;
+            margin: 5px 0;
+        }
+
+        .connected {
+            color: green;
+        }
+
+        .disconnected {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat Test Interface</h1>
+    
+    <div class="connection-panel">
+        <h3>Connection Settings</h3>
+        <div>
+            <label>Tenant ID:</label><br>
+            <input type="text" id="tenantId" value="1">
+        </div>
+        <div>
+            <label>User ID:</label><br>
+            <input type="text" id="userId" value="user-456">
+        </div>
+        <button onclick="connect()" id="connectBtn">Connect</button>
+        <div id="connectionStatus" class="status disconnected">Disconnected</div>
+    </div>
+
+    <div class="container">
+        <div class="room-panel">
+            <h3>Room Management</h3>
+            <div>
+                <label>Room ID:</label><br>
+                <input type="text" id="roomId" value="room-123">
+            </div>
+            <button onclick="joinRoom()" id="joinBtn" disabled>Join Room</button>
+            <button onclick="leaveRoom()" id="leaveBtn" disabled>Leave Room</button>
+            <div id="roomStatus" class="status">Not in any room</div>
+        </div>
+
+        <div class="chat-panel">
+            <h3>Chat</h3>
+            <div class="messages" id="messages"></div>
+            <div class="message-form">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    class="message-input" 
+                    placeholder="Type a message..." 
+                    disabled
+                    onkeypress="if(event.key === 'Enter') sendMessage()"
+                >
+                <button onclick="sendMessage()" id="sendBtn" disabled>Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let socket;
+        let currentRoom = null;
+
+        function updateConnectionStatus(status, isError = false) {
+            const statusElement = document.getElementById('connectionStatus');
+            statusElement.textContent = status;
+            statusElement.className = `status ${isError ? 'disconnected' : 'connected'}`;
+            console.log(`Connection status: ${status}`);
+        }
+
+        function connect() {
+            const tenantId = document.getElementById('tenantId').value;
+            const userId = document.getElementById('userId').value;
+
+            if (!tenantId || !userId) {
+                alert('Please provide both Tenant ID and User ID');
+                return;
+            }
+
+            console.log('Attempting to connect with:', { tenantId, userId });
+
+            if (socket) {
+                socket.close();
+            }
+
+            socket = io('http://localhost:3050', {
+                query: { tenantId, userId },
+                transports: ['websocket'],
+                reconnection: true,
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000,
+                timeout: 10000
+            });
+
+            // Socket event handlers
+            socket.on('connect', () => {
+                console.log('Socket connected successfully');
+                updateConnectionStatus('Connected');
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('joinBtn').disabled = false;
+            });
+
+            socket.on('connect_error', (error) => {
+                console.error('Connection error:', error);
+                updateConnectionStatus(`Connection error: ${error.message}`, true);
+                resetUI();
+            });
+
+            socket.on('disconnect', (reason) => {
+                console.log('Socket disconnected:', reason);
+                updateConnectionStatus(`Disconnected: ${reason}`, true);
+                resetUI();
+            });
+
+            socket.on('newMessage', (message) => {
+                console.log('New message received:', message);
+                handleNewMessage(message);
+            });
+
+            socket.on('error', (error) => {
+                console.error('Socket error:', error);
+                handleError(error);
+            });
+        }
+
+        function joinRoom() {
+            const roomId = document.getElementById('roomId').value;
+            const tenantId = document.getElementById('tenantId').value;
+
+            if (!roomId || !socket) return;
+
+            console.log('Joining room:', roomId);
+
+            socket.emit('joinRoom', { roomId, tenantId }, (response) => {
+                console.log('Join room response:', response);
+                currentRoom = roomId;
+                document.getElementById('roomStatus').textContent = `Joined room: ${roomId}`;
+                document.getElementById('joinBtn').disabled = true;
+                document.getElementById('leaveBtn').disabled = false;
+                document.getElementById('messageInput').disabled = false;
+                document.getElementById('sendBtn').disabled = false;
+                
+                if (response && Array.isArray(response)) {
+                    response.forEach(handleNewMessage);
+                }
+            });
+        }
+
+        function leaveRoom() {
+            if (!currentRoom || !socket) return;
+
+            socket.emit('leaveRoom', { roomId: currentRoom });
+            currentRoom = null;
+            document.getElementById('roomStatus').textContent = 'Not in any room';
+            document.getElementById('joinBtn').disabled = false;
+            document.getElementById('leaveBtn').disabled = true;
+            document.getElementById('messageInput').disabled = true;
+            document.getElementById('sendBtn').disabled = true;
+            document.getElementById('messages').innerHTML = '';
+        }
+
+        function sendMessage() {
+            if (!currentRoom || !socket) return;
+
+            const messageInput = document.getElementById('messageInput');
+            const content = messageInput.value.trim();
+            
+            if (!content) return;
+
+            const messageData = {
+                content,
+                roomId: currentRoom,
+                senderId: document.getElementById('userId').value,
+                tenantId: document.getElementById('tenantId').value
+            };
+
+            console.log('Sending message:', messageData);
+
+            socket.emit('sendMessage', messageData, (response) => {
+                console.log('Message sent response:', response);
+                messageInput.value = '';
+            });
+        }
+
+        function handleNewMessage(message) {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message';
+            
+            const time = new Date(message.createdAt || Date.now()).toLocaleTimeString();
+            
+            messageElement.innerHTML = `
+                <strong>${message.senderId}:</strong> ${message.content}
+                <span style="font-size: 0.8em; color: #666;">${time}</span>
+            `;
+            
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function handleError(error) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = typeof error === 'string' ? error : error.message || 'An error occurred';
+            document.getElementById('messages').appendChild(errorDiv);
+        }
+
+        function resetUI() {
+            document.getElementById('connectBtn').disabled = false;
+            document.getElementById('joinBtn').disabled = true;
+            document.getElementById('leaveBtn').disabled = true;
+            document.getElementById('messageInput').disabled = true;
+            document.getElementById('sendBtn').disabled = true;
+            currentRoom = null;
+            document.getElementById('roomStatus').textContent = 'Not in any room';
+        }
+    </script>
+</body>
+</html>

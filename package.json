@@ -24,7 +24,7 @@
     "start:prod:todo": "node dist/apps/todo/main",
     "start:prod:reservation": "node dist/apps/reservation/main",
     "start:prod:common_area": "node dist/apps/common_area/main",
-    "start:prod:all": "concurrently \"pnpm run start:prod:api\" \"pnpm run start:prod:auth\" \"pnpm run start:prod:apartment\" \"pnpm run start:prod:resident\" \"pnpm run start:prod:todo\"  \"pnpm run start:prod:reservation\" \"pnpm run start:prod:common_area\" \"pnpm run start:prod:chat\"",
+    "start:prod:all": "concurrently \"pnpm run start:prod:api\" \"pnpm run start:prod:auth\" \"pnpm run start:prod:apartment\" \"pnpm run start:prod:resident\" \"pnpm run start:prod:todo\"  \"pnpm run start:prod:reservation\" \"pnpm run start:prod:common_area\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "test": "jest",
     "test:api": "jest --config apps/api-gateway/jest.config.js",
@@ -37,7 +37,9 @@
     "@nestjs/microservices": "^10.4.7",
     "@nestjs/mongoose": "^10.1.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-socket.io": "^10.4.9",
     "@nestjs/swagger": "^8.0.2",
+    "@nestjs/websockets": "^10.4.9",
     "argon2": "^0.41.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
@@ -45,6 +47,7 @@
     "mongoose": "^8.8.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
+    "socket.io": "^4.8.1",
     "uuid": "^11.0.3"
   },
   "devDependencies": {
