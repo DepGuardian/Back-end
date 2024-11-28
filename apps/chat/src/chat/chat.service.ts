@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { DatabaseConnectionService } from '@database/database.service';
-import { Message, MessageSchema } from '@libs/schemas/chat.schema';
-import { TypeErrors } from '@libs/constants/errors';
+import { DatabaseConnectionService } from '../../../../libs/database/database.service';
+import { Message, MessageSchema } from '../../../../libs/schemas/chat.schema';
+import { TypeErrors } from '../../../../libs/constants/errors';
 
 @Injectable()
 export class ChatService {
