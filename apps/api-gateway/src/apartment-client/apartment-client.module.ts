@@ -11,7 +11,7 @@ import { ApartmentClientController } from './apartment-client.controller';
         transport: Transport.TCP,
         options: {
           host: 'localhost',
-          port: 3002, // Puerto donde correrá tu microservicio de auth
+          port: 3016, // Puerto donde correrá tu microservicio de auth
         },
       },
     ]),
