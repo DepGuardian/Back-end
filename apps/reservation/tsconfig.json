@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../dist/apps/apartments",
+    "outDir": "../../dist/apps/reservation",
     "baseUrl": "./",
     "paths": {
       "@apartments/*": ["src/*"],

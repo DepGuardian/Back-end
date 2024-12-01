@@ -18,9 +18,8 @@ export class ChatService {
     tenantId: string;
   }) {
     try {
-      const tenantConnection = await this.databaseConnectionService.getConnection(
-        data.tenantId,
-      );
+      const tenantConnection =
+        await this.databaseConnectionService.getConnection(data.tenantId);
 
       if (!tenantConnection) {
         return {
@@ -46,9 +45,8 @@ export class ChatService {
 
   async getRoomMessages(data: { roomId: string; tenantId: string }) {
     try {
-      const tenantConnection = await this.databaseConnectionService.getConnection(
-        data.tenantId,
-      );
+      const tenantConnection =
+        await this.databaseConnectionService.getConnection(data.tenantId);
 
       if (!tenantConnection) {
         return {

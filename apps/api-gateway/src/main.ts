@@ -27,10 +27,9 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors()
+  app.enableCors();
 
   app.useWebSocketAdapter(new IoAdapter(app));
-  
 
   Logger.log(
     `Server is running on http://localhost:${process.env.PORT ?? 3000}`,

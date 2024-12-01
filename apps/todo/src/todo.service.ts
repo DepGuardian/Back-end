@@ -21,12 +21,13 @@ export class TodoService {
 
   async createTodo(newtodo: CreateTodoDto): Promise<ResponseDto> {
     try {
+      console.log(newtodo);
       const newTodo: TodoDto = {
         id: new Types.ObjectId(),
         title: newtodo.data.title,
         done: false,
       };
-
+      console.log(newTodo);
       const tenantConnection =
         await this.databaseConnectionService.getConnection(newtodo.tenantId);
 
@@ -43,12 +44,12 @@ export class TodoService {
         ResidentSchema,
       );
 
-      const residentUpdate = ResidentModel.findByIdAndUpdate(
-        newtodo.residentId,
+      const residentUpdate = await ResidentModel.findByIdAndUpdate(
+        Types.ObjectId.createFromHexString(newtodo.residentId),
         {
           $push: { todo_list: newTodo },
         },
-      );
+      ).exec();
 
       if (!residentUpdate) {
         return {

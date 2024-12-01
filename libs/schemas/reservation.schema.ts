@@ -10,13 +10,18 @@ export type ReservationDocument = Reservation & Document;
   versionKey: false,
 })
 export class Reservation {
-  @Prop({ type: Types.ObjectId, required: false, unique:true, ref: 'reservation' })
+  @Prop({
+    type: Types.ObjectId,
+    required: false,
+    unique: true,
+    ref: 'reservation',
+  })
   id_reservation: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, required: true, ref: 'common_area'})
+  @Prop({ type: Types.ObjectId, required: true, ref: 'common_area' })
   id_common_area: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, required: true, ref: 'resident'})
+  @Prop({ type: Types.ObjectId, required: true, ref: 'resident' })
   id_host: Types.ObjectId;
 
   @Prop({
@@ -27,7 +32,6 @@ export class Reservation {
     required: true,
   })
   time_interval: { start: Date; end: Date };
-
 }
 
 export const ReservationSchema = SchemaFactory.createForClass(Reservation);

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { CommonAreaClientService} from './common-area-client.service';
+import { CommonAreaClientService } from './common-area-client.service';
 import { CommonAreaClientController } from './common-area-client.controller';
 
 @Module({

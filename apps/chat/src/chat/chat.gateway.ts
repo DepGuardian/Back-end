@@ -21,7 +21,9 @@ import { ChatService } from './chat.service';
   transports: ['websocket'],
   namespace: '/',
 })
-export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class ChatGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer() server: Server;
   private readonly logger = new Logger(ChatGateway.name);
 
@@ -45,7 +47,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
       await client.join(`tenant:${tenantId}`);
       this.logger.log(`Client connected: ${client.id} for tenant: ${tenantId}`);
-      client.emit('connectionEstablished', { status: 'connected', userId, tenantId });
+      client.emit('connectionEstablished', {
+        status: 'connected',
+        userId,
+        tenantId,
+      });
     } catch (error) {
       this.logger.error(`Connection error for client ${client.id}:`, error);
       client.disconnect();
@@ -75,7 +81,13 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('sendMessage')
   async handleMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { content: string; roomId: string; senderId: string; tenantId: string },
+    @MessageBody()
+    data: {
+      content: string;
+      roomId: string;
+      senderId: string;
+      tenantId: string;
+    },
   ) {
     this.logger.log(`Message from client ${client.id} in room ${data.roomId}`);
     try {

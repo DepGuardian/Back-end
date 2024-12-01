@@ -12,7 +12,7 @@ import { Transform } from 'class-transformer';
 
 export class CreateApartmentDto {
   @ApiProperty({
-    example: 'John Doe',
+    example: '674ce9dd4243c0444ebd84c6',
     description: 'Nombre del propietario del apartamento',
   })
   @IsString()
@@ -49,9 +49,9 @@ export class RefreshCodeDto {
     example: '507f1f77bcf86cd799439011',
     description: 'ID de MongoDB del apartamento',
   })
-  @IsMongoId({ message: 'El ID del apartamento debe ser un MongoId válido' })
-  @Transform(({ value }) => Types.ObjectId.createFromHexString(value))
-  apartmentId: Types.ObjectId;
+  @IsString()
+  @IsNotEmpty({ message: 'El ID del apartamento es requerido' })
+  apartmentId: string;
 
   @ApiProperty({
     example: 'tenant-123',

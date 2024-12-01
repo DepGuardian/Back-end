@@ -1,6 +1,12 @@
 import { Controller, HttpStatus, Logger } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
-import { CreateCommonAreaDto, GetByStatusDto, GetByNameDto, DeleteCommonAreaDto, UpdateCommonAreaDto} from '@libs/dtos/common_area.dto';
+import {
+  CreateCommonAreaDto,
+  GetByStatusDto,
+  GetByNameDto,
+  DeleteCommonAreaDto,
+  UpdateCommonAreaDto,
+} from '@libs/dtos/common_area.dto';
 import { CommonAreaService } from './common_area.service';
 import { ResponseDto } from '@libs/dtos/response.dto';
 import { TypeErrors } from '@libs/constants/errors';
@@ -13,7 +19,7 @@ export class CommonAreaController {
   @MessagePattern({ cmd: 'createCommonArea' })
   async createCommonArea(data: CreateCommonAreaDto) {
     try {
-      this.logger.log("creando common area")
+      this.logger.log('creando common area');
       const response: ResponseDto =
         await this.commonAreaService.createCommonArea(data);
       return response;
@@ -55,7 +61,7 @@ export class CommonAreaController {
   async getByStatus(data: GetByStatusDto) {
     try {
       const { tenantId, status } = data;
-      if (!tenantId || !status) { 
+      if (!tenantId || !status) {
         this.logger.error('tenantId and status are required');
         return {
           status: HttpStatus.BAD_REQUEST,
@@ -67,8 +73,10 @@ export class CommonAreaController {
         await this.commonAreaService.getByStatus(data);
       return response;
     } catch (error) {
-      this.logger.error(`Error fetching common areas for tenantId: ${data.tenantId} and status: ${data.status}`,
-        error.stack);
+      this.logger.error(
+        `Error fetching common areas for tenantId: ${data.tenantId} and status: ${data.status}`,
+        error.stack,
+      );
       return {
         status: HttpStatus.INTERNAL_SERVER_ERROR,
         data: null,
@@ -77,10 +85,10 @@ export class CommonAreaController {
     }
   }
 
-  @MessagePattern({cmd: `getByName`})
+  @MessagePattern({ cmd: `getByName` })
   async getByName(data: GetByNameDto) {
     try {
-      const{tenantId, name} = data;
+      const { tenantId, name } = data;
       if (!tenantId || !name) {
         this.logger.error('tenantId and name are required');
         return {
@@ -93,7 +101,10 @@ export class CommonAreaController {
         await this.commonAreaService.getByName(data);
       return response;
     } catch (error) {
-      this.logger.error(`Error fetching common areas for tenantId: ${data.tenantId} and name: ${data.name}`, error.stack);
+      this.logger.error(
+        `Error fetching common areas for tenantId: ${data.tenantId} and name: ${data.name}`,
+        error.stack,
+      );
       return {
         status: HttpStatus.INTERNAL_SERVER_ERROR,
         data: null,
@@ -102,7 +113,7 @@ export class CommonAreaController {
     }
   }
 
-  @MessagePattern({cmd: `deleteCommonArea`})
+  @MessagePattern({ cmd: `deleteCommonArea` })
   async deleteCommonArea(data: DeleteCommonAreaDto) {
     try {
       const response: ResponseDto =
@@ -118,7 +129,7 @@ export class CommonAreaController {
     }
   }
 
-  @MessagePattern({cmd: `updateCommonArea`})
+  @MessagePattern({ cmd: `updateCommonArea` })
   async updateCommonArea(data: UpdateCommonAreaDto) {
     try {
       const response: ResponseDto =

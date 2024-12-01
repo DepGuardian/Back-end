@@ -1,7 +1,12 @@
 import { Injectable, Logger, HttpStatus } from '@nestjs/common';
-import mongoose from 'mongoose';
-import { CreateReservationDto,DeleteReservationDto} from '@libs/dtos/reservation.dto';
-import { Reservation, ReservationSchema } from '@libs/schemas/reservation.schema';
+import {
+  CreateReservationDto,
+  DeleteReservationDto,
+} from '@libs/dtos/reservation.dto';
+import {
+  Reservation,
+  ReservationSchema,
+} from '@libs/schemas/reservation.schema';
 import { DatabaseConnectionService } from '@database/database.service';
 import { ResponseDto } from '@libs/dtos/response.dto';
 import { TypeErrors } from '@libs/constants/errors';
@@ -23,6 +28,7 @@ export class ReservationService {
   async createReservation(
     registerData: CreateReservationDto,
   ): Promise<ResponseDto> {
+    console.log(registerData);
     try {
       const tenantConnection =
         await this.databaseConnectionService.getConnection(
@@ -43,25 +49,40 @@ export class ReservationService {
       );
 
       // Verificamos si ya existe una reservacion en el mismo lugar y dentro del intervalo (casos: mismo inicio, mismo inicio-final, mismo final)
-      
-      const middleTime = registerData.start_time
-      middleTime.setHours(registerData.end_time.getHours()-registerData.start_time.getHours())
-      middleTime.setMinutes(registerData.end_time.getMinutes()-registerData.start_time.getMinutes()/2)
+
+      const middleTime = new Date(registerData.start_time);
+      middleTime.setHours(
+        new Date(registerData.end_time).getHours() -
+          new Date(registerData.start_time).getHours(),
+      );
+      middleTime.setMinutes(
+        new Date(registerData.end_time).getMinutes() -
+          new Date(registerData.start_time).getMinutes() / 2,
+      );
 
       const existingReservationStart = await ReservationModel.findOne({
-         id_common_area: registerData.id_common_area,
-         time_interval: [registerData.start_time, middleTime]
+        id_common_area: registerData.id_common_area,
+        time_interval: {
+          start: new Date(registerData.start_time),
+          end: middleTime,
+        },
       });
 
       const existingReservationSame = await ReservationModel.findOne({
         id_common_area: registerData.id_common_area,
-        time_interval: [registerData.start_time, registerData.end_time]
-      })
+        time_interval: {
+          start: new Date(registerData.start_time),
+          end: new Date(registerData.end_time),
+        },
+      });
 
       const existingReservationEnd = await ReservationModel.findOne({
         id_common_area: registerData.id_common_area,
-        time_interval: [middleTime, registerData.end_time]
-      })
+        time_interval: {
+          start: middleTime,
+          end: new Date(registerData.end_time),
+        },
+      });
 
       if (existingReservationSame) {
         return {
@@ -90,7 +111,10 @@ export class ReservationService {
       const newReservation = new ReservationModel({
         id_common_area: registerData.id_common_area,
         id_host: registerData.id_host,
-        time_interval: [registerData.start_time, registerData.end_time]
+        time_interval: {
+          start: new Date(registerData.start_time),
+          end: new Date(registerData.end_time),
+        },
       });
 
       // Guardar en la base de datos
@@ -134,7 +158,7 @@ export class ReservationService {
         ReservationSchema,
       );
 
-      const allReservations= await ReservationModel.find();
+      const allReservations = await ReservationModel.find();
 
       return {
         status: HttpStatus.OK,
@@ -173,9 +197,9 @@ export class ReservationService {
         ReservationSchema,
       );
 
-      const deletedReservation = await ReservationModel.findOneAndDelete({
-        id: data.id,
-      });
+      const deletedReservation = await ReservationModel.findByIdAndDelete(
+        data.id,
+      );
 
       if (!deletedReservation) {
         return {
@@ -203,5 +227,4 @@ export class ReservationService {
       };
     }
   }
-
 }

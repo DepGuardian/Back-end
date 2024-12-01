@@ -1,6 +1,12 @@
 import { Injectable, Logger, HttpStatus } from '@nestjs/common';
 import mongoose from 'mongoose';
-import { CreateCommonAreaDto, GetByNameDto, GetByStatusDto, DeleteCommonAreaDto, UpdateCommonAreaDto } from '@libs/dtos/common_area.dto';
+import {
+  CreateCommonAreaDto,
+  GetByNameDto,
+  GetByStatusDto,
+  DeleteCommonAreaDto,
+  UpdateCommonAreaDto,
+} from '@libs/dtos/common_area.dto';
 import { CommonArea, CommonAreaSchema } from '@libs/schemas/common_area.schema';
 import { DatabaseConnectionService } from '@database/database.service';
 import { ResponseDto } from '@libs/dtos/response.dto';
@@ -14,23 +20,6 @@ export class CommonAreaService {
   constructor(
     private readonly databaseConnectionService: DatabaseConnectionService,
   ) {}
-
-  // Método privado para obtener la conexión y el modelo
-  private async getCommonAreaModel(tenantId: string) {
-    const tenantConnection =
-      await this.databaseConnectionService.getConnection(tenantId);
-
-    if (!tenantConnection) {
-      return {
-        status: HttpStatus.NOT_FOUND,
-        data: null,
-        errorMessage: TypeErrors.TENANT_NOT_FOUND,
-      };
-    }
-
-    return tenantConnection.model<CommonArea>('CommonArea', CommonAreaSchema);
-  }
-
 
   async createCommonArea(
     registerData: CreateCommonAreaDto,
@@ -69,7 +58,7 @@ export class CommonAreaService {
 
       // Crear common area
       const newCommonArea = new CommonAreaModel({
-        name:registerData.name,
+        name: registerData.name,
         description: registerData.description,
         capacity: registerData.capacity,
         status: registerData.status,
@@ -163,7 +152,9 @@ export class CommonAreaService {
         CommonAreaSchema,
       );
 
-      const CommonAreaByStatus = await CommonAreaModel.findById(data.status); // asi?
+      const CommonAreaByStatus = await CommonAreaModel.find({
+        status: data.status,
+      }); // asi?
 
       return {
         status: HttpStatus.OK,
@@ -184,7 +175,7 @@ export class CommonAreaService {
     }
   }
 
-  async getByName(data: GetByNameDto): Promise <ResponseDto> {
+  async getByName(data: GetByNameDto): Promise<ResponseDto> {
     try {
       if (!data.name) {
         return {
@@ -209,7 +200,7 @@ export class CommonAreaService {
         CommonAreaSchema,
       );
 
-      const CommonAreaByName = await CommonAreaModel.findById(data.name); // asi?
+      const CommonAreaByName = await CommonAreaModel.find({ name: data.name }); // asi?
 
       return {
         status: HttpStatus.OK,
@@ -231,19 +222,26 @@ export class CommonAreaService {
   }
 
   // Método para eliminar un área común por ID
-  async deleteCommonArea(data: DeleteCommonAreaDto ): Promise<ResponseDto> {
-    const commonAreaModel = await this.getCommonAreaModel(data.tenantId);
-
-    if (!commonAreaModel || 'status' in commonAreaModel) {
-      return {
-        status: HttpStatus.NOT_FOUND,
-        data: null,
-        errorMessage: TypeErrors.TENANT_NOT_FOUND,
-      };
-    }
-
+  async deleteCommonArea(data: DeleteCommonAreaDto): Promise<ResponseDto> {
+    console.log(data);
     try {
-      const result = await commonAreaModel.findByIdAndDelete(data.id);
+      const tenantConnection =
+        await this.databaseConnectionService.getConnection(data.tenantId);
+
+      if (!tenantConnection) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.TENANT_NOT_FOUND,
+        };
+      }
+
+      const CommonAreaModel = tenantConnection.model<CommonArea>(
+        'CommonArea',
+        CommonAreaSchema,
+      );
+
+      const result = await CommonAreaModel.findByIdAndDelete(data.id);
       if (!result) {
         return {
           status: HttpStatus.NOT_FOUND,
@@ -268,18 +266,24 @@ export class CommonAreaService {
   }
 
   async updateCommonArea(data: UpdateCommonAreaDto): Promise<ResponseDto> {
-    const commonAreaModel = await this.getCommonAreaModel(data.tenantId);
-
-    if (!commonAreaModel || 'status' in commonAreaModel) {
-      return {
-        status: HttpStatus.NOT_FOUND,
-        data: null,
-        errorMessage: TypeErrors.TENANT_NOT_FOUND,
-      };
-    }
-
     try {
-      const result = await commonAreaModel.findByIdAndUpdate(data.id, data, {
+      const tenantConnection =
+        await this.databaseConnectionService.getConnection(data.tenantId);
+
+      if (!tenantConnection) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.TENANT_NOT_FOUND,
+        };
+      }
+
+      const CommonAreaModel = tenantConnection.model<CommonArea>(
+        'CommonArea',
+        CommonAreaSchema,
+      );
+
+      const result = await CommonAreaModel.findByIdAndUpdate(data.id, data, {
         new: true,
       });
 

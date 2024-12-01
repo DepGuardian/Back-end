@@ -50,11 +50,86 @@ export class AuthService implements OnModuleInit {
 
   async login(loginData: AuthLoginDto): Promise<ResponseDto> {
     this.logger.debug(`Attempting login for user: ${loginData.email}`);
-    return {
-      status: HttpStatus.OK,
-      data: null,
-      errorMessage: null,
-    };
+    if (loginData.isSuperAdmin) {
+      const superAdmin = await this.userModel.findOne({
+        email: loginData.email.toLowerCase(),
+      });
+      if (!superAdmin) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.USER_NOT_FOUND,
+        };
+      }
+      const isPasswordValid = await this.verifyPassword(
+        superAdmin.password,
+        loginData.password,
+      );
+
+      if (!isPasswordValid) {
+        return {
+          status: HttpStatus.UNAUTHORIZED,
+          data: null,
+          errorMessage: TypeErrors.INVALID_PASSWORD,
+        };
+      }
+
+      return {
+        status: HttpStatus.OK,
+        data: null,
+        errorMessage: null,
+      };
+    } else {
+      // Obtenemos la conexión específica para el tenant
+      const tenantConnection =
+        await this.databaseConnectionService.getConnection(loginData.tenantId);
+
+      if (!tenantConnection) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.TENANT_NOT_FOUND,
+        };
+      }
+
+      // Creamos el modelo de Resident para esta conexión específica
+      const ResidentModel = tenantConnection.model<Resident>(
+        'Resident',
+        ResidentSchema,
+      );
+
+      // Verificamos si el email ya existe
+      const existingResident = await ResidentModel.findOne({
+        email: loginData.email.toLowerCase(),
+      });
+
+      if (!existingResident) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.USER_NOT_FOUND,
+        };
+      }
+
+      const isPasswordValid = await this.verifyPassword(
+        existingResident.password,
+        loginData.password,
+      );
+
+      if (!isPasswordValid) {
+        return {
+          status: HttpStatus.UNAUTHORIZED,
+          data: null,
+          errorMessage: TypeErrors.INVALID_PASSWORD,
+        };
+      }
+
+      return {
+        status: HttpStatus.OK,
+        data: null,
+        errorMessage: null,
+      };
+    }
   }
 
   async registerSuperAdmin(
@@ -169,6 +244,7 @@ export class AuthService implements OnModuleInit {
         email: registerData.email.toLowerCase(),
         password: hashedPassword,
         apartment: registerData.apartment,
+        todo_list: [],
       });
 
       // Guardar en la base de datos
