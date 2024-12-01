@@ -11,7 +11,8 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
       envFilePath: ['.env', '../../.env'],
     }),
-    DatabaseModule],
+    DatabaseModule,
+  ],
   providers: [ChatGateway, ChatService],
   controllers: [ChatController],
 })

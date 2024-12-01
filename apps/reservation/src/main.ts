@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Transport, MicroserviceOptions } from '@nestjs/microservices';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ReservationModule } from './reservation.module';
 
 async function bootstrap() {
@@ -16,6 +16,7 @@ async function bootstrap() {
       },
     },
   );
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   await app.listen();
   logger.log('Reservation Microservice is listening');
 }

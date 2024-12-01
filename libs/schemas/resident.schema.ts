@@ -23,7 +23,7 @@ export class Resident {
   @Prop({ required: true })
   apartment: string;
 
-  @Prop({ required: true, default: false })
+  @Prop({ required: true, default: true, type: [TodoDto] })
   todo_list: TodoDto[];
 }
 

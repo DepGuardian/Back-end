@@ -10,7 +10,13 @@ import {
   Res,
   Delete,
 } from '@nestjs/common';
-import { CreateCommonAreaDto,DeleteCommonAreaDto,GetByNameDto,GetByStatusDto,UpdateCommonAreaDto} from '@libs/dtos/common_area.dto';
+import {
+  CreateCommonAreaDto,
+  DeleteCommonAreaDto,
+  GetByNameDto,
+  GetByStatusDto,
+  UpdateCommonAreaDto,
+} from '@libs/dtos/common_area.dto';
 import { CommonAreaClientService } from './common-area-client.service';
 
 @Controller('commonarea')
@@ -45,12 +51,9 @@ export class CommonAreaClientController {
 
   @Get('all')
   async getAll(@Query(`tenantId`) tenantId: string, @Res() res: any) {
-    try{
-      if(!tenantId){
-        throw new HttpException(
-          'TenantId is required',
-          HttpStatus.BAD_REQUEST,
-        );
+    try {
+      if (!tenantId) {
+        throw new HttpException('TenantId is required', HttpStatus.BAD_REQUEST);
       }
       this.logger.log(
         `Get all common areas for TenantId ${tenantId}`,
@@ -73,24 +76,30 @@ export class CommonAreaClientController {
 
   @Get('status')
   async getByStatus(
-    @Query() data: GetByStatusDto ,@Res() res: any) {
+    @Query('status') status: string,
+    @Query('tenantId') tenantId: string,
+    @Res() res: any,
+  ) {
     try {
-      if(!data.tenantId || !status){
+      if (!tenantId || !status) {
         throw new HttpException(
           'TenantId and status are required',
           HttpStatus.BAD_REQUEST,
         );
       }
       this.logger.log(
-        `Get all common areas for TenantId ${data.tenantId} with status: ${data.status}`,
-        `GET /commonarea?tenantId=${data.tenantId}?status=${data.status}`,
+        `Get all common areas for TenantId ${tenantId} with status: ${status}`,
+        `GET /commonarea?tenantId=${tenantId}?status=${status}`,
       );
 
-      const response = await this.commonAreaClientService.getByStatus(data);
+      const response = await this.commonAreaClientService.getByStatus({
+        status,
+        tenantId,
+      });
       return res.status(response.status).json(response);
     } catch (error) {
       this.logger.error(
-        `Failed to get common area in tenant(${data.tenantId}) with status: ${data.status}`,
+        `Failed to get common area in tenant(${tenantId}) with status: ${status}`,
         error.stack,
       );
       throw new HttpException(
@@ -101,9 +110,13 @@ export class CommonAreaClientController {
   }
 
   @Get()
-  async getByName(@Query() data: GetByNameDto ,@Res() res: any) {
+  async getByName(
+    @Query('name') name: string,
+    @Query('tenantId') tenantId: string,
+    @Res() res: any,
+  ) {
     try {
-      if(!data.tenantId || !data.name){
+      if (!tenantId || !name) {
         throw new HttpException(
           'TenantId and status are required',
           HttpStatus.BAD_REQUEST,
@@ -111,15 +124,18 @@ export class CommonAreaClientController {
       }
 
       this.logger.log(
-        `Get all common areas for TenantId ${data.tenantId} with name: ${data.name}`,
-        `GET /commonarea?tenantId=${data.tenantId}?name=${data.name}`,
+        `Get all common areas for TenantId ${tenantId} with name: ${name}`,
+        `GET /commonarea?tenantId=${tenantId}?name=${name}`,
       );
 
-      const response = await this.commonAreaClientService.getByName(data);
+      const response = await this.commonAreaClientService.getByName({
+        tenantId,
+        name,
+      });
       return res.status(response.status).json(response);
     } catch (error) {
       this.logger.error(
-        `Failed to get common area in tenant(${data.tenantId}) with name: ${name}`,
+        `Failed to get common area in tenant(${tenantId}) with name: ${name}`,
         error.stack,
       );
       throw new HttpException(
@@ -129,11 +145,16 @@ export class CommonAreaClientController {
     }
   }
   @Delete()
-  async deleteCommonArea(data: DeleteCommonAreaDto) {
+  async deleteCommonArea(
+    @Query('id') id: string,
+    @Query('tenantId') tenantId: string,
+    @Res() res: any,
+  ) {
+    console.log(id, tenantId);
     try {
       const response: Response =
-        await this.commonAreaClientService.deleteCommonArea(data);
-      return response;
+        await this.commonAreaClientService.deleteCommonArea({ id, tenantId });
+      return res.status(response.status).json(response);
     } catch (error) {
       this.logger.error('Error deleting common area:', error);
       throw new HttpException(
@@ -144,11 +165,12 @@ export class CommonAreaClientController {
   }
 
   @Post('update')
-  async updateCommonArea(@Body() data: UpdateCommonAreaDto) {
+  async updateCommonArea(@Body() data: UpdateCommonAreaDto, @Res() res: any) {
+    console.log(data);
     try {
       const response: Response =
         await this.commonAreaClientService.updateCommonArea(data);
-      return response;
+      return res.status(response.status).json(response);
     } catch (error) {
       this.logger.error('Error updating common area:', error);
       throw new HttpException(

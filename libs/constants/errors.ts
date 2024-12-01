@@ -12,4 +12,5 @@ export enum TypeErrors {
   RESERVATION_IN_CONFLICT = 'Reservation in conflict',
   STATUS_REQUIRED = 'Status is required',
   COMMON_AREA_NOT_FOUND = 'Common area not found',
+  USER_NOT_FOUND = 'User not found',
 }

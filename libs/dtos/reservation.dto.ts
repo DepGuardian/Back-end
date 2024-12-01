@@ -29,17 +29,17 @@ export class CreateReservationDto {
     example: '2024-11-20T10:00:00.000Z',
     description: 'Fecha y hora de inicio de la reserva',
   })
-  @IsDate()
+  @IsString()
   @IsNotEmpty({ message: 'La fecha de inicio es obligatoria' })
-  start_time: Date;
+  start_time: string;
 
   @ApiProperty({
     example: '2024-11-20T12:00:00.000Z',
     description: 'Fecha y hora de fin de la reserva',
   })
-  @IsDate()
+  @IsString()
   @IsNotEmpty({ message: 'La fecha de fin es obligatoria' })
-  end_time: Date;
+  end_time: string;
 
   @ApiPropertyOptional({
     example: 'tenant-123',
@@ -58,6 +58,7 @@ export class DeleteReservationDto {
   @IsMongoId()
   @IsNotEmpty({ message: 'El ID de la reservación es obligatorio' })
   id: Types.ObjectId;
-  @IsOptional()
-  tenantId?: string;
+  @IsString()
+  @IsNotEmpty({ message: 'El ID del inquilino es obligatorio' })
+  tenantId: string;
 }

@@ -49,9 +49,8 @@ export class CreateTodoDto {
     example: '507f1f77bcf86cd799439011',
     description: 'ID de MongoDB del residente',
   })
-  @IsMongoId()
-  @Transform(({ value }) => Types.ObjectId.createFromHexString(value))
-  residentId: Types.ObjectId;
+  @IsString()
+  residentId: string;
 }
 
 export class DeleteTodoDto {

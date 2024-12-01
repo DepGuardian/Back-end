@@ -1,4 +1,10 @@
-import { CreateCommonAreaDto,GetByNameDto, GetByStatusDto, DeleteCommonAreaDto, UpdateCommonAreaDto } from '@libs/dtos/common_area.dto';
+import {
+  CreateCommonAreaDto,
+  GetByNameDto,
+  GetByStatusDto,
+  DeleteCommonAreaDto,
+  UpdateCommonAreaDto,
+} from '@libs/dtos/common_area.dto';
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -7,13 +13,14 @@ import { firstValueFrom } from 'rxjs';
 export class CommonAreaClientService {
   private readonly logger = new Logger(CommonAreaClientService.name);
   constructor(
-    @Inject('COMMON_AREA_SERVICE') private readonly authClient: ClientProxy,
+    @Inject('COMMON_AREA_SERVICE')
+    private readonly commonAreaClient: ClientProxy,
   ) {}
 
   async createCommonArea(registerData: CreateCommonAreaDto) {
     try {
       const pattern = { cmd: 'createCommonArea' };
-      return firstValueFrom(this.authClient.send(pattern, registerData));
+      return firstValueFrom(this.commonAreaClient.send(pattern, registerData));
     } catch (error) {
       this.logger.error('Failed to create common area', error.stack);
       throw new Error(error);
@@ -23,7 +30,7 @@ export class CommonAreaClientService {
   async getAll(tenantId: string) {
     try {
       const pattern = { cmd: 'getAll' };
-      return firstValueFrom(this.authClient.send(pattern, tenantId));
+      return firstValueFrom(this.commonAreaClient.send(pattern, tenantId));
     } catch (error) {
       this.logger.error('Failed to retrieve common areas', error.stack);
       throw new Error(error);
@@ -33,7 +40,7 @@ export class CommonAreaClientService {
   async getByStatus(data: GetByStatusDto) {
     try {
       const pattern = { cmd: 'getByStatus' };
-      return firstValueFrom(this.authClient.send(pattern,data)); // No se si esta bien esto
+      return firstValueFrom(this.commonAreaClient.send(pattern, data)); // No se si esta bien esto
     } catch (error) {
       this.logger.error('Failed to retrieve common areas', error.stack);
       throw new Error(error);
@@ -43,7 +50,7 @@ export class CommonAreaClientService {
   async getByName(data: GetByNameDto) {
     try {
       const pattern = { cmd: 'getByName' };
-      return firstValueFrom(this.authClient.send(pattern, data)); // No se si esta bien esto
+      return firstValueFrom(this.commonAreaClient.send(pattern, data)); // No se si esta bien esto
     } catch (error) {
       this.logger.error('Failed to retrieve common areas', error.stack);
       throw new Error(error);
@@ -53,7 +60,7 @@ export class CommonAreaClientService {
   async deleteCommonArea(data: DeleteCommonAreaDto) {
     try {
       const pattern = { cmd: 'deleteCommonArea' };
-      return firstValueFrom(this.authClient.send(pattern, data));
+      return firstValueFrom(this.commonAreaClient.send(pattern, data));
     } catch (error) {
       this.logger.error('Failed to delete common area', error.stack);
       throw new Error(error);
@@ -63,7 +70,7 @@ export class CommonAreaClientService {
   async updateCommonArea(data: UpdateCommonAreaDto) {
     try {
       const pattern = { cmd: 'updateCommonArea' };
-      return firstValueFrom(this.authClient.send(pattern, data));
+      return firstValueFrom(this.commonAreaClient.send(pattern, data));
     } catch (error) {
       this.logger.error('Failed to update common area', error.stack);
       throw new Error(error);

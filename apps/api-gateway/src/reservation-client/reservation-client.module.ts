@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ReservationClientService} from './reservation-client.service';
+import { ReservationClientService } from './reservation-client.service';
 import { ReservationClientController } from './reservation-client.controller';
 
 @Module({

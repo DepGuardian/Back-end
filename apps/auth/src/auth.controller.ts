@@ -10,6 +10,7 @@ import { TypeErrors } from '@libs/constants/errors';
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
   constructor(private readonly authService: AuthService) {}
+
   @MessagePattern({ cmd: 'login' })
   async login(data: AuthLoginDto) {
     try {
