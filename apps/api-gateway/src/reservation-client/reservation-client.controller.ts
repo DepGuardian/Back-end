@@ -7,9 +7,10 @@ import {
   Logger,
   Get,
   Post,
+  Delete,
   Res,
 } from '@nestjs/common';
-import { CreateReservationDto} from '@libs/dtos/reservation.dto';
+import { CreateReservationDto, DeleteReservationDto} from '@libs/dtos/reservation.dto';
 import { ReservationClientService } from './reservation-client.service';
 
 @Controller('reservation')
@@ -63,4 +64,26 @@ export class ReservationClientController {
       );
     }
   }
+  @Delete()
+  async deleteReservation(
+    @Body() registerData: DeleteReservationDto,
+    @Res() res: any,
+  ) {
+    try {
+      this.logger.log(
+        `Delete reservation with data: ${JSON.stringify(registerData)}`,
+        `DELETE /reservation`,
+      );
+      const response =
+        await this.reservationClientService.deleteReservation(registerData);
+      return res.status(response.status).json(response);
+    } catch (error) {
+      this.logger.error('Failed to delete reservation', error.stack);
+      throw new HttpException(
+        'Error deleting reservation',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  
 }

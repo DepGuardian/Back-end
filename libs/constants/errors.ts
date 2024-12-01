@@ -5,4 +5,11 @@ export enum TypeErrors {
   APARTMENT_NOT_FOUND = 'Apartment not found',
   RESIDENT_NOT_FOUND = 'Resident not found',
   EMAIL_ALREADY_EXISTS = 'Email already exists',
+  INVALID_PASSWORD = 'Invalid password',
+  NAME_REQUIRED = 'Name is required',
+  RESERVATION_NOT_FOUND = 'Reservation not found',
+  INVALID_INTERVAL = 'Invalid interval',
+  RESERVATION_IN_CONFLICT = 'Reservation in conflict',
+  STATUS_REQUIRED = 'Status is required',
+  COMMON_AREA_NOT_FOUND = 'Common area not found',
 }

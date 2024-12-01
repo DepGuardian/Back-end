@@ -1,6 +1,6 @@
 import { Injectable, Logger, HttpStatus } from '@nestjs/common';
 import mongoose from 'mongoose';
-import { CreateCommonAreaDto } from '@libs/dtos/common_area.dto';
+import { CreateCommonAreaDto, GetByNameDto, GetByStatusDto, DeleteCommonAreaDto, UpdateCommonAreaDto } from '@libs/dtos/common_area.dto';
 import { CommonArea, CommonAreaSchema } from '@libs/schemas/common_area.schema';
 import { DatabaseConnectionService } from '@database/database.service';
 import { ResponseDto } from '@libs/dtos/response.dto';
@@ -15,11 +15,22 @@ export class CommonAreaService {
     private readonly databaseConnectionService: DatabaseConnectionService,
   ) {}
 
-  private getRandomInt(min: number, max: number) {
-    const minCeiled = Math.ceil(min);
-    const maxFloored = Math.floor(max);
-    return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
+  // Método privado para obtener la conexión y el modelo
+  private async getCommonAreaModel(tenantId: string) {
+    const tenantConnection =
+      await this.databaseConnectionService.getConnection(tenantId);
+
+    if (!tenantConnection) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        data: null,
+        errorMessage: TypeErrors.TENANT_NOT_FOUND,
+      };
+    }
+
+    return tenantConnection.model<CommonArea>('CommonArea', CommonAreaSchema);
   }
+
 
   async createCommonArea(
     registerData: CreateCommonAreaDto,
@@ -126,10 +137,18 @@ export class CommonAreaService {
     }
   }
 
-  async getByStatus(tenantId: string, status: string): Promise<ResponseDto> {
+  async getByStatus(data: GetByStatusDto): Promise<ResponseDto> {
     try {
+      if (!data.status) {
+        return {
+          status: HttpStatus.BAD_REQUEST,
+          data: null,
+          errorMessage: TypeErrors.STATUS_REQUIRED,
+        };
+      }
+
       const tenantConnection =
-        await this.databaseConnectionService.getConnection(tenantId);
+        await this.databaseConnectionService.getConnection(data.tenantId);
 
       if (!tenantConnection) {
         return {
@@ -144,7 +163,7 @@ export class CommonAreaService {
         CommonAreaSchema,
       );
 
-      const CommonAreaByStatus = await CommonAreaModel.findById(status); // asi?
+      const CommonAreaByStatus = await CommonAreaModel.findById(data.status); // asi?
 
       return {
         status: HttpStatus.OK,
@@ -153,10 +172,132 @@ export class CommonAreaService {
       };
     } catch (error) {
       this.logger.error(
-        `Error getting all common areas from tenant: ${tenantId}`,
+        `Error getting all common areas from tenant: ${data.tenantId}`,
         error.stack,
       );
 
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        errorMessage: TypeErrors.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+
+  async getByName(data: GetByNameDto): Promise <ResponseDto> {
+    try {
+      if (!data.name) {
+        return {
+          status: HttpStatus.BAD_REQUEST,
+          data: null,
+          errorMessage: TypeErrors.NAME_REQUIRED,
+        };
+      }
+      const tenantConnection =
+        await this.databaseConnectionService.getConnection(data.tenantId);
+
+      if (!tenantConnection) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.TENANT_NOT_FOUND,
+        };
+      }
+
+      const CommonAreaModel = tenantConnection.model<CommonArea>(
+        'CommonArea',
+        CommonAreaSchema,
+      );
+
+      const CommonAreaByName = await CommonAreaModel.findById(data.name); // asi?
+
+      return {
+        status: HttpStatus.OK,
+        data: CommonAreaByName,
+        errorMessage: null,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error getting all common areas from tenant: ${data.tenantId}`,
+        error.stack,
+      );
+
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        errorMessage: TypeErrors.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+
+  // Método para eliminar un área común por ID
+  async deleteCommonArea(data: DeleteCommonAreaDto ): Promise<ResponseDto> {
+    const commonAreaModel = await this.getCommonAreaModel(data.tenantId);
+
+    if (!commonAreaModel || 'status' in commonAreaModel) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        data: null,
+        errorMessage: TypeErrors.TENANT_NOT_FOUND,
+      };
+    }
+
+    try {
+      const result = await commonAreaModel.findByIdAndDelete(data.id);
+      if (!result) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.COMMON_AREA_NOT_FOUND,
+        };
+      }
+
+      return {
+        status: HttpStatus.OK,
+        data: result,
+        errorMessage: null,
+      };
+    } catch (error) {
+      this.logger.error(`Error deleting common area: ${error.message}`);
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        errorMessage: TypeErrors.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+
+  async updateCommonArea(data: UpdateCommonAreaDto): Promise<ResponseDto> {
+    const commonAreaModel = await this.getCommonAreaModel(data.tenantId);
+
+    if (!commonAreaModel || 'status' in commonAreaModel) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        data: null,
+        errorMessage: TypeErrors.TENANT_NOT_FOUND,
+      };
+    }
+
+    try {
+      const result = await commonAreaModel.findByIdAndUpdate(data.id, data, {
+        new: true,
+      });
+
+      if (!result) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.COMMON_AREA_NOT_FOUND,
+        };
+      }
+
+      return {
+        status: HttpStatus.OK,
+        data: result,
+        errorMessage: null,
+      };
+    } catch (error) {
+      this.logger.error(`Error updating common area: ${error.message}`);
       return {
         status: HttpStatus.INTERNAL_SERVER_ERROR,
         data: null,
