@@ -10,7 +10,6 @@ import { ApartmentClientModule } from './apartment-client/apartment-client.modul
 import { TodoClientModule } from './todo-client/todo-client.module';
 import { ReservationClientModule } from './reservation-client/reservation-client.module';
 import { CommonAreaClientModule } from './common-area-client/common-area-client.module';
-import { ChatClientModule } from './chat-client/chat-client.module';
 
 @Module({
   imports: [
@@ -27,7 +26,6 @@ import { ChatClientModule } from './chat-client/chat-client.module';
     TodoClientModule,
     ReservationClientModule,
     CommonAreaClientModule,
-    ChatClientModule,
     DatabaseModule,
   ],
   controllers: [AppController],
