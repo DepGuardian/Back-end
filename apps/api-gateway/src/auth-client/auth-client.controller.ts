@@ -73,6 +73,9 @@ export class AuthClientController {
         `Register resident with email: ${registerData.email}`,
         `POST /auth/registerResident`,
       );
+      this.logger.debug(
+        `Register resident data: ${JSON.stringify(registerData)}`,
+      );
 
       const response: ResponseDto =
         await this.authClientService.registerResident(registerData);

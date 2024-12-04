@@ -9,15 +9,8 @@ export type ReservationDocument = Reservation & Document;
   timestamps: true,
   versionKey: false,
 })
-export class Reservation {
-  @Prop({
-    type: Types.ObjectId,
-    required: false,
-    unique: true,
-    ref: 'reservation',
-  })
-  id_reservation: Types.ObjectId;
-
+export class Reservation {//modifiqué esto para que se genere un id automáticamente, no me maten :C
+ 
   @Prop({ type: Types.ObjectId, required: true, ref: 'common_area' })
   id_common_area: Types.ObjectId;
 
