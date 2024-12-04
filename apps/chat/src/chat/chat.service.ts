@@ -62,7 +62,7 @@ export class ChatService {
       );
 
       return MessageModel.find({ roomId: data.roomId })
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: 1 })
         .limit(50)
         .exec();
     } catch (error) {

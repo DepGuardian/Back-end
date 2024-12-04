@@ -23,11 +23,6 @@ export class AuthLoginDto {
     description: 'Contraseña del usuario (mínimo 8 caracteres)',
   })
   @IsString()
-  @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
-  @Matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/, {
-    message:
-      'La contraseña debe contener al menos una mayúscula, una minúscula y un número',
-  })
   @IsNotEmpty()
   password: string;
 

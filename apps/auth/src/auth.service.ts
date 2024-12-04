@@ -126,8 +126,11 @@ export class AuthService implements OnModuleInit {
       }
 
       const result = {
-        ...existingResident,
-        password: undefined,
+        _id: existingResident._id,
+        fullName: existingResident.fullName,
+        email: existingResident.email,
+        apartment: existingResident.apartment,
+        todo_list: existingResident.todo_list,
       };
 
       return {
@@ -289,8 +292,11 @@ export class AuthService implements OnModuleInit {
 
       // Retornar residente sin la contraseña
       const result = {
-        ...savedResident,
-        password: undefined,
+        _id: savedResident._id,
+        fullName: savedResident.fullName,
+        email: savedResident.email,
+        apartment: savedResident.apartment,
+        todo_list: savedResident.todo_list,
       };
 
       return {
