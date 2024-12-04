@@ -60,6 +60,40 @@ export class ReservationService {
           new Date(registerData.start_time).getMinutes() / 2,
       );
 
+      const existingReservation = await ReservationModel.findOne({
+        id_common_area: registerData.id_common_area,
+        $or: [
+          // Caso 1: La nueva reserva está dentro de una existente
+          {
+            'time_interval.start': { $lte: new Date(registerData.start_time) },
+            'time_interval.end': { $gte: new Date(registerData.end_time) }
+          },
+          // Caso 2: Una reserva existente está dentro de la nueva
+          {
+            'time_interval.start': { $gte: new Date(registerData.start_time) },
+            'time_interval.end': { $lte: new Date(registerData.end_time) }
+          },
+          // Caso 3: Superposición al inicio
+          {
+            'time_interval.start': { $lt: new Date(registerData.end_time) },
+            'time_interval.end': { $gt: new Date(registerData.start_time) }
+          },
+          // Caso 4: Superposición al final
+          {
+            'time_interval.start': { $lt: new Date(registerData.end_time) },
+            'time_interval.end': { $gt: new Date(registerData.start_time) }
+          }
+        ]
+      });
+      
+      if (existingReservation) {
+        return {
+          status: HttpStatus.CONFLICT,
+          data: null,
+          errorMessage: TypeErrors.RESERVATION_IN_CONFLICT,
+        };
+      }
+
       const existingReservationStart = await ReservationModel.findOne({
         id_common_area: registerData.id_common_area,
         time_interval: {
@@ -84,6 +118,13 @@ export class ReservationService {
         },
       });
 
+      if (existingReservation) {
+        return {
+          status: HttpStatus.CONFLICT,
+          data: null,
+          errorMessage: TypeErrors.RESERVATION_IN_CONFLICT,
+        };
+      }
       if (existingReservationSame) {
         return {
           status: HttpStatus.CONFLICT,
@@ -116,7 +157,7 @@ export class ReservationService {
           end: new Date(registerData.end_time),
         },
       });
-
+      console.log(newReservation);
       // Guardar en la base de datos
       const savedReservation = await newReservation.save();
 

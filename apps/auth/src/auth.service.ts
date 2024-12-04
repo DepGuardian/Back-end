@@ -7,6 +7,7 @@ import { User, UserDocument } from '@libs/schemas/user.schema';
 import { AuthLoginDto, AuthRegisterSuperAdminDto } from '@libs/dtos/auth.dto';
 import { RegisterResidentDto } from '@libs/dtos/resident.dto';
 import { Resident, ResidentSchema } from '@libs/schemas/resident.schema';
+import { Apartment, ApartmentSchema } from '@libs/schemas/apartment.schema';
 import * as argon2 from 'argon2';
 import { TypeErrors } from '@libs/constants/errors';
 import { ResponseDto } from '@libs/dtos/response.dto';
@@ -124,9 +125,14 @@ export class AuthService implements OnModuleInit {
         };
       }
 
+      const result = {
+        ...existingResident,
+        password: undefined,
+      };
+
       return {
         status: HttpStatus.OK,
-        data: null,
+        data: result,
         errorMessage: null,
       };
     }
@@ -230,6 +236,32 @@ export class AuthService implements OnModuleInit {
         };
       }
 
+      // Creamos el modelo de Resident para esta conexión específica
+      const ApartmentModel = tenantConnection.model<Apartment>(
+        'Apartment',
+        ApartmentSchema,
+      );
+
+      const apartment = await ApartmentModel.findOne({
+        apartment: registerData.apartment,
+      });
+
+      if (!apartment) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          data: null,
+          errorMessage: TypeErrors.APARTMENT_NOT_FOUND,
+        };
+      }
+
+      if (apartment.code !== registerData.code) {
+        return {
+          status: HttpStatus.UNAUTHORIZED,
+          data: null,
+          errorMessage: TypeErrors.INVALID_CODE,
+        };
+      }
+
       // Hash de la contraseña
       const hashedPassword = await argon2.hash(registerData.password, {
         type: argon2.argon2id,
@@ -249,6 +281,11 @@ export class AuthService implements OnModuleInit {
 
       // Guardar en la base de datos
       const savedResident = (await newResident.save()).toObject();
+
+      await ApartmentModel.updateOne(
+        { apartment: registerData.apartment },
+        { $set: { owner: savedResident._id } },
+      );
 
       // Retornar residente sin la contraseña
       const result = {
