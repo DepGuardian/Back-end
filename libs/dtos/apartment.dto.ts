@@ -16,7 +16,7 @@ export class CreateApartmentDto {
     description: 'Nombre del propietario del apartamento',
   })
   @IsString()
-  @IsNotEmpty({ message: 'El nombre del propietario es requerido' })
+  @IsOptional()
   owner: string;
 
   @ApiProperty({
